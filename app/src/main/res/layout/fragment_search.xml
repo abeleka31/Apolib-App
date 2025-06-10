@@ -6,7 +6,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:text="Cari Sesuatu di Sini"
+    android:text="Coming soon"
     android:textSize="28sp"
     android:textStyle="bold"
     android:textColor="@android:color/black" />
