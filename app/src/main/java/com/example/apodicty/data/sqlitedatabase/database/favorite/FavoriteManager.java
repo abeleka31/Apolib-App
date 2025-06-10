@@ -1,0 +1,375 @@
+package com.example.apodicty.data.sqlitedatabase.database.favorite;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
+
+import androidx.annotation.Nullable; // Import ini untuk @Nullable
+
+import com.example.apodicty.data.sqlitedatabase.database.DatabaseHelper;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class FavoriteManager {
+
+    private static final String TAG = "FavoriteManager";
+    private DatabaseHelper dbHelper;
+    private SQLiteDatabase database;
+
+    public FavoriteManager(Context context) {
+        dbHelper = new DatabaseHelper(context);
+    }
+
+    public void open() {
+        // Pastikan database tidak null dan belum terbuka
+        if (database == null || !database.isOpen()) {
+            try {
+                database = dbHelper.getWritableDatabase();
+            } catch (Exception e) {
+                Log.e(TAG, "Error opening database: " + e.getMessage());
+                // Handle error opening database, perhaps rethrow or show a user message
+            }
+        }
+    }
+
+    public void close() {
+        if (database != null && database.isOpen()) {
+            dbHelper.close(); // dbHelper.close() akan menutup database
+            database = null; // Set database ke null setelah ditutup
+        }
+    }
+
+    public boolean addFavorite(Favorite favorite) {
+        open(); // Pastikan database terbuka
+        ContentValues values = new ContentValues();
+        values.put(DatabaseHelper.COL_ID_OBAT, favorite.getIdObat());
+        values.put(DatabaseHelper.COL_EMAIL_FK, favorite.getEmailFk());
+        values.put(DatabaseHelper.COL_PRODUCTTYPE, favorite.getProductType());
+        values.put(DatabaseHelper.COL_GENERICNAME, favorite.getGenericName());
+
+        values.put(DatabaseHelper.COL_BRANDNAME, favorite.getBrandName());
+        values.put(DatabaseHelper.COL_EFFECTIVETIME, favorite.getEffectiveTime());
+        values.put(DatabaseHelper.COL_VERSION, favorite.getVersion());
+        values.put(DatabaseHelper.COL_SETID, favorite.getSetId());
+        values.put(DatabaseHelper.COL_MANUFACTURERNAME, favorite.getManufacturerName());
+        values.put(DatabaseHelper.COL_ROUTE, favorite.getRoute());
+        values.put(DatabaseHelper.COL_RXCUI, favorite.getRxcui());
+        values.put(DatabaseHelper.COL_UNII, favorite.getUnii());
+        values.put(DatabaseHelper.COL_PHARMCLAS_EPC, favorite.getPharmClassEpc());
+        values.put(DatabaseHelper.COL_PHARMCLAS_MOA, favorite.getPharmClassMoa());
+        values.put(DatabaseHelper.COL_PRODUCTNDC, favorite.getProductNdc());
+        values.put(DatabaseHelper.COL_SPLSETID, favorite.getSplSetId());
+
+        values.put(DatabaseHelper.COL_ACTIVEINGREDIENT, favorite.getActiveIngredient());
+        values.put(DatabaseHelper.COL_INACTIVEINGREDIENT, favorite.getInactiveIngredient());
+        values.put(DatabaseHelper.COL_DESCRIPTION, favorite.getDescription());
+        values.put(DatabaseHelper.COL_INDICATIONSANDUSAGE, favorite.getIndicationsAndUsage());
+        values.put(DatabaseHelper.COL_DOSAGEANDADMINISTRATION, favorite.getDosageAndAdministration());
+        values.put(DatabaseHelper.COL_CONTRAINDICATIONS, favorite.getContraindications());
+        values.put(DatabaseHelper.COL_WARNINGS, favorite.getWarnings());
+        values.put(DatabaseHelper.COL_WARNINGSANDCAUTIONS, favorite.getWarningsAndCautions());
+        values.put(DatabaseHelper.COL_BOXEDWARNING, favorite.getBoxedWarning());
+        values.put(DatabaseHelper.COL_ADVERSEREACTIONS, favorite.getAdverseReactions());
+        values.put(DatabaseHelper.COL_DRUGINTERACTIONS, favorite.getDrugInteractions());
+        values.put(DatabaseHelper.COL_CLINICALPHARMACOLOGY, favorite.getClinicalPharmacology());
+        values.put(DatabaseHelper.COL_PHARMACODYNAMICS, favorite.getPharmacodynamics());
+        values.put(DatabaseHelper.COL_PHARMACOKINETICS, favorite.getPharmacokinetics());
+        values.put(DatabaseHelper.COL_MECHANISMOFACTION, favorite.getMechanismOfAction());
+        values.put(DatabaseHelper.COL_USEINSPECIFICPOPULATIONS, favorite.getUseInSpecificPopulations());
+        values.put(DatabaseHelper.COL_PREGNANCY, favorite.getPregnancy());
+        values.put(DatabaseHelper.COL_NURSINGMOTHERS, favorite.getNursingMothers());
+        values.put(DatabaseHelper.COL_PEDIATRICUSE, favorite.getPediatricUse());
+        values.put(DatabaseHelper.COL_GERIATRICUSE, favorite.getGeriatricUse());
+        values.put(DatabaseHelper.COL_OVERDOSAGE, favorite.getOverdosage());
+        values.put(DatabaseHelper.COL_HOWSUPPLIED, favorite.getHowSupplied());
+        values.put(DatabaseHelper.COL_STORAGEANDHANDLING, favorite.getStorageAndHandling());
+        values.put(DatabaseHelper.COL_PATIENTMEDICATIONINFORMATION, favorite.getPatientMedicationInformation());
+        values.put(DatabaseHelper.COL_SPLMEDGUIDE, favorite.getSplMedguide());
+        values.put(DatabaseHelper.COL_SPLPATIENTPACKAGEINSERT, favorite.getSplPatientPackageInsert());
+        values.put(DatabaseHelper.COL_DRUG_REFERENCES, favorite.getDrugReferences());
+        values.put(DatabaseHelper.COL_QUESTIONS, favorite.getQuestions());
+
+        values.put(DatabaseHelper.COL_INFORMATIONFORPATIENTS, favorite.getInformationForPatients());
+        values.put(DatabaseHelper.COL_ASKDOCTORORPHARMACIST, favorite.getAskDoctorOrPharmacist());
+        values.put(DatabaseHelper.COL_SAFEHANDLINGWARNING, favorite.getSafeHandlingWarning());
+        values.put(DatabaseHelper.COL_USERSAFETYWARNINGS, favorite.getUserSafetyWarnings());
+        values.put(DatabaseHelper.COL_SPLUNCLASSIFIEDSECTION, favorite.getSplUnclassifiedSection());
+        values.put(DatabaseHelper.COL_CONTROLLEDSUBSTANCE, favorite.getControlledSubstance());
+        values.put(DatabaseHelper.COL_DRUGABUSEANDDEPENDENCE, favorite.getDrugAbuseAndDependence());
+        values.put(DatabaseHelper.COL_LABORANDDELIVERY, favorite.getLaborAndDelivery());
+        values.put(DatabaseHelper.COL_LABORATORYTESTS, favorite.getLaboratoryTests());
+        values.put(DatabaseHelper.COL_NONCLINICALTOXICOLOGY, favorite.getNonclinicalToxicology());
+        values.put(DatabaseHelper.COL_MICROBIOLOGY, favorite.getMicrobiology());
+        values.put(DatabaseHelper.COL_CARCINOGENESISANDMUTAGENESISANDIMPAIRMENTOFFERTILITY, favorite.getCarcinogenesisAndMutagenesisAndImpairmentOfFertility());
+        values.put(DatabaseHelper.COL_RECENTMAJORCHANGES, favorite.getRecentMajorChanges());
+        values.put(DatabaseHelper.COL_RISKS, favorite.getRisks());
+        values.put(DatabaseHelper.COL_STOPUSE, favorite.getStopUse());
+        values.put(DatabaseHelper.COL_CREATED_AT, favorite.getCreatedAt()); // Pastikan ini juga disisipkan
+
+        long result = database.insert(DatabaseHelper.TABLE_FAVORIT, null, values);
+        Log.d(TAG, "addFavorite: result = " + result);
+        return result != -1;
+    }
+
+    /**
+     * Mengambil daftar semua obat favorit untuk email pengguna tertentu, dengan dukungan pencarian dan pengurutan.
+     * @param email Email pengguna yang favoritnya ingin diambil.
+     * @param searchQuery String pencarian (bisa null atau kosong untuk tidak mencari).
+     * @param sortBy Kolom untuk pengurutan (misal: DatabaseHelper.COL_CREATED_AT, DatabaseHelper.COL_GENERICNAME).
+     * @param sortOrder Urutan pengurutan ("ASC" atau "DESC").
+     * @return List objek Favorite.
+     */
+    public List<Favorite> getFavoritesByUser(String email, @Nullable String searchQuery, @Nullable String sortBy, @Nullable String sortOrder) {
+        List<Favorite> favoriteList = new ArrayList<>();
+        open(); // Pastikan database terbuka
+        Cursor cursor = null;
+
+        StringBuilder selection = new StringBuilder(DatabaseHelper.COL_EMAIL_FK + " = ?");
+        List<String> selectionArgs = new ArrayList<>();
+        selectionArgs.add(email);
+
+        // Menambahkan kondisi pencarian jika searchQuery tidak null dan tidak kosong
+        if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+            String likeQuery = "%" + searchQuery.trim() + "%";
+            // Pencarian berdasarkan generic_name ATAU brand_name (case-insensitive)
+            selection.append(" AND (")
+                    .append(DatabaseHelper.COL_GENERICNAME).append(" LIKE ? COLLATE NOCASE OR ") // COLLATE NOCASE untuk case-insensitive
+                    .append(DatabaseHelper.COL_BRANDNAME).append(" LIKE ? COLLATE NOCASE)");
+            selectionArgs.add(likeQuery);
+            selectionArgs.add(likeQuery);
+        }
+
+        String orderBy = null;
+        if (sortBy != null && !sortBy.isEmpty()) {
+            orderBy = sortBy;
+            if (sortOrder != null && (sortOrder.equalsIgnoreCase("ASC") || sortOrder.equalsIgnoreCase("DESC"))) {
+                orderBy += " " + sortOrder;
+            } else {
+                orderBy += " DESC"; // Default descending jika sortOrder tidak valid
+            }
+        } else {
+            orderBy = DatabaseHelper.COL_CREATED_AT + " DESC"; // Default sort by creation time (terbaru ke terlama)
+        }
+
+        try {
+            cursor = database.query(
+                    DatabaseHelper.TABLE_FAVORIT,
+                    null, // Mengambil semua kolom
+                    selection.toString(),
+                    selectionArgs.toArray(new String[0]),
+                    null,
+                    null,
+                    orderBy // Klausa Order By
+            );
+
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    favoriteList.add(parseFavoriteFromCursor(cursor)); // Menggunakan metode bantu
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting favorites by user with search/sort: " + e.getMessage());
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+            // close(); // Jangan menutup database di sini jika fragment akan terus menggunakannya
+        }
+        return favoriteList;
+    }
+
+    public int deleteFavorite(int idFavorite) {
+        open(); // Pastikan database terbuka
+        String whereClause = DatabaseHelper.COL_ID_FAVORITE + " = ?";
+        String[] whereArgs = { String.valueOf(idFavorite) };
+        int rowsAffected = database.delete(DatabaseHelper.TABLE_FAVORIT, whereClause, whereArgs);
+        Log.d(TAG, "deleteFavorite: rows affected = " + rowsAffected);
+        return rowsAffected;
+    }
+
+    public int deleteFavoriteByIdObatAndEmail(String idObat, String userEmail) {
+        open(); // Pastikan database terbuka
+        String whereClause = DatabaseHelper.COL_ID_OBAT + " = ? AND " + DatabaseHelper.COL_EMAIL_FK + " = ?";
+        String[] whereArgs = { idObat, userEmail };
+        int rowsAffected = database.delete(DatabaseHelper.TABLE_FAVORIT, whereClause, whereArgs);
+        Log.d(TAG, "deleteFavoriteByIdObatAndEmail: rows affected = " + rowsAffected);
+        return rowsAffected;
+    }
+
+    public boolean isDrugFavorited(String idObat, String userEmail) {
+        open(); // Pastikan database terbuka
+        Cursor cursor = null;
+        boolean isFavorited = false;
+        try {
+            String selection = DatabaseHelper.COL_ID_OBAT + " = ? AND " + DatabaseHelper.COL_EMAIL_FK + " = ?";
+            String[] selectionArgs = { idObat, userEmail };
+
+            cursor = database.query(
+                    DatabaseHelper.TABLE_FAVORIT,
+                    new String[]{DatabaseHelper.COL_ID_FAVORITE}, // Hanya ambil ID untuk efisiensi
+                    selection,
+                    selectionArgs,
+                    null,
+                    null,
+                    null
+            );
+            isFavorited = cursor != null && cursor.getCount() > 0;
+        } catch (Exception e) {
+            Log.e(TAG, "Error checking favorite status: " + e.getMessage());
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return isFavorited;
+    }
+
+    public Favorite getFavoriteByIdObatAndEmail(String idObat, String userEmail) {
+        open(); // Pastikan database terbuka
+        Cursor cursor = null;
+        Favorite favorite = null;
+
+        String[] columns = {
+                DatabaseHelper.COL_ID_FAVORITE, DatabaseHelper.COL_ID_OBAT, DatabaseHelper.COL_EMAIL_FK,
+                DatabaseHelper.COL_PRODUCTTYPE, DatabaseHelper.COL_GENERICNAME,
+                DatabaseHelper.COL_BRANDNAME, DatabaseHelper.COL_EFFECTIVETIME,
+                DatabaseHelper.COL_VERSION, DatabaseHelper.COL_SETID,
+                DatabaseHelper.COL_MANUFACTURERNAME, DatabaseHelper.COL_ROUTE,
+                DatabaseHelper.COL_RXCUI, DatabaseHelper.COL_UNII,
+                DatabaseHelper.COL_PHARMCLAS_EPC, DatabaseHelper.COL_PHARMCLAS_MOA,
+                DatabaseHelper.COL_PRODUCTNDC, DatabaseHelper.COL_SPLSETID,
+                DatabaseHelper.COL_ACTIVEINGREDIENT, DatabaseHelper.COL_INACTIVEINGREDIENT,
+                DatabaseHelper.COL_DESCRIPTION, DatabaseHelper.COL_INDICATIONSANDUSAGE,
+                DatabaseHelper.COL_DOSAGEANDADMINISTRATION, DatabaseHelper.COL_CONTRAINDICATIONS,
+                DatabaseHelper.COL_WARNINGS, DatabaseHelper.COL_WARNINGSANDCAUTIONS,
+                DatabaseHelper.COL_BOXEDWARNING, DatabaseHelper.COL_ADVERSEREACTIONS,
+                DatabaseHelper.COL_DRUGINTERACTIONS, DatabaseHelper.COL_CLINICALPHARMACOLOGY,
+                DatabaseHelper.COL_PHARMACODYNAMICS, DatabaseHelper.COL_PHARMACOKINETICS,
+                DatabaseHelper.COL_MECHANISMOFACTION, DatabaseHelper.COL_USEINSPECIFICPOPULATIONS,
+                DatabaseHelper.COL_PREGNANCY, DatabaseHelper.COL_NURSINGMOTHERS,
+                DatabaseHelper.COL_PEDIATRICUSE, DatabaseHelper.COL_GERIATRICUSE,
+                DatabaseHelper.COL_OVERDOSAGE, DatabaseHelper.COL_HOWSUPPLIED,
+                DatabaseHelper.COL_STORAGEANDHANDLING, DatabaseHelper.COL_PATIENTMEDICATIONINFORMATION,
+                DatabaseHelper.COL_SPLMEDGUIDE, DatabaseHelper.COL_SPLPATIENTPACKAGEINSERT,
+                DatabaseHelper.COL_DRUG_REFERENCES, DatabaseHelper.COL_QUESTIONS,
+                DatabaseHelper.COL_INFORMATIONFORPATIENTS, DatabaseHelper.COL_ASKDOCTORORPHARMACIST,
+                DatabaseHelper.COL_SAFEHANDLINGWARNING, DatabaseHelper.COL_USERSAFETYWARNINGS,
+                DatabaseHelper.COL_SPLUNCLASSIFIEDSECTION, DatabaseHelper.COL_CONTROLLEDSUBSTANCE,
+                DatabaseHelper.COL_DRUGABUSEANDDEPENDENCE, DatabaseHelper.COL_LABORANDDELIVERY,
+                DatabaseHelper.COL_LABORATORYTESTS, DatabaseHelper.COL_NONCLINICALTOXICOLOGY,
+                DatabaseHelper.COL_MICROBIOLOGY, DatabaseHelper.COL_CARCINOGENESISANDMUTAGENESISANDIMPAIRMENTOFFERTILITY,
+                DatabaseHelper.COL_RECENTMAJORCHANGES, DatabaseHelper.COL_RISKS,
+                DatabaseHelper.COL_STOPUSE, DatabaseHelper.COL_CREATED_AT // Pastikan ini juga ada
+        };
+
+        try {
+            String selection = DatabaseHelper.COL_ID_OBAT + " = ? AND " + DatabaseHelper.COL_EMAIL_FK + " = ?";
+            String[] selectionArgs = { idObat, userEmail };
+
+            cursor = database.query(
+                    DatabaseHelper.TABLE_FAVORIT,
+                    columns,
+                    selection,
+                    selectionArgs,
+                    null, null, null,
+                    "1" // LIMIT 1 karena kita hanya mencari satu record
+            );
+
+            if (cursor != null && cursor.moveToFirst()) {
+                favorite = parseFavoriteFromCursor(cursor);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting single favorite by ID and email: " + e.getMessage());
+            favorite = null;
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return favorite;
+    }
+
+    /**
+     * Metode bantu untuk mengurai objek Favorite dari Cursor.
+     * Ini mengurangi duplikasi kode saat mengisi objek Favorite.
+     * @param cursor Cursor yang berisi data Favorite.
+     * @return Objek Favorite yang terisi.
+     */
+    private Favorite parseFavoriteFromCursor(Cursor cursor) {
+        Favorite favorite = new Favorite();
+        try {
+            favorite.setIdFavorite(cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_ID_FAVORITE)));
+            favorite.setIdObat(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_ID_OBAT)));
+            favorite.setEmailFk(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_EMAIL_FK)));
+            favorite.setProductType(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_PRODUCTTYPE)));
+            favorite.setGenericName(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_GENERICNAME)));
+
+            favorite.setBrandName(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BRANDNAME)));
+            favorite.setEffectiveTime(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_EFFECTIVETIME)));
+            favorite.setVersion(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_VERSION)));
+            favorite.setSetId(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_SETID)));
+            favorite.setManufacturerName(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_MANUFACTURERNAME)));
+            favorite.setRoute(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_ROUTE)));
+            favorite.setRxcui(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_RXCUI)));
+            favorite.setUnii(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_UNII)));
+            favorite.setPharmClassEpc(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_PHARMCLAS_EPC)));
+            favorite.setPharmClassMoa(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_PHARMCLAS_MOA)));
+            favorite.setProductNdc(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_PRODUCTNDC)));
+            favorite.setSplSetId(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_SPLSETID)));
+
+            favorite.setActiveIngredient(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_ACTIVEINGREDIENT)));
+            favorite.setInactiveIngredient(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_INACTIVEINGREDIENT)));
+            favorite.setDescription(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_DESCRIPTION)));
+            favorite.setIndicationsAndUsage(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_INDICATIONSANDUSAGE)));
+            favorite.setDosageAndAdministration(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_DOSAGEANDADMINISTRATION)));
+            favorite.setContraindications(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_CONTRAINDICATIONS)));
+            favorite.setWarnings(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_WARNINGS)));
+            favorite.setWarningsAndCautions(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_WARNINGSANDCAUTIONS)));
+            favorite.setBoxedWarning(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_BOXEDWARNING)));
+            favorite.setAdverseReactions(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_ADVERSEREACTIONS)));
+            favorite.setDrugInteractions(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_DRUGINTERACTIONS)));
+            favorite.setClinicalPharmacology(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_CLINICALPHARMACOLOGY)));
+            favorite.setPharmacodynamics(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_PHARMACODYNAMICS)));
+            favorite.setPharmacokinetics(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_PHARMACOKINETICS)));
+            favorite.setMechanismOfAction(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_MECHANISMOFACTION)));
+            favorite.setUseInSpecificPopulations(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_USEINSPECIFICPOPULATIONS)));
+            favorite.setPregnancy(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_PREGNANCY)));
+            favorite.setNursingMothers(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_NURSINGMOTHERS)));
+            favorite.setPediatricUse(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_PEDIATRICUSE)));
+            favorite.setGeriatricUse(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_GERIATRICUSE)));
+            favorite.setOverdosage(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_OVERDOSAGE)));
+            favorite.setHowSupplied(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_HOWSUPPLIED)));
+            favorite.setStorageAndHandling(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_STORAGEANDHANDLING)));
+            favorite.setPatientMedicationInformation(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_PATIENTMEDICATIONINFORMATION)));
+            favorite.setSplMedguide(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_SPLMEDGUIDE)));
+            favorite.setSplPatientPackageInsert(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_SPLPATIENTPACKAGEINSERT)));
+            favorite.setDrugReferences(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_DRUG_REFERENCES)));
+            favorite.setQuestions(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_QUESTIONS)));
+            favorite.setInformationForPatients(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_INFORMATIONFORPATIENTS)));
+            favorite.setAskDoctorOrPharmacist(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_ASKDOCTORORPHARMACIST)));
+            favorite.setSafeHandlingWarning(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_SAFEHANDLINGWARNING)));
+            favorite.setUserSafetyWarnings(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_USERSAFETYWARNINGS)));
+            favorite.setSplUnclassifiedSection(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_SPLUNCLASSIFIEDSECTION)));
+            favorite.setControlledSubstance(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_CONTROLLEDSUBSTANCE)));
+            favorite.setDrugAbuseAndDependence(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_DRUGABUSEANDDEPENDENCE)));
+            favorite.setLaborAndDelivery(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_LABORANDDELIVERY)));
+            favorite.setLaboratoryTests(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_LABORATORYTESTS)));
+            favorite.setNonclinicalToxicology(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_NONCLINICALTOXICOLOGY)));
+            favorite.setMicrobiology(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_MICROBIOLOGY)));
+            favorite.setCarcinogenesisAndMutagenesisAndImpairmentOfFertility(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_CARCINOGENESISANDMUTAGENESISANDIMPAIRMENTOFFERTILITY)));
+            favorite.setRecentMajorChanges(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_RECENTMAJORCHANGES)));
+            favorite.setRisks(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_RISKS)));
+            favorite.setStopUse(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_STOPUSE)));
+            favorite.setCreatedAt(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_CREATED_AT)));
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, "Column not found in cursor: " + e.getMessage());
+            // Ini bisa terjadi jika ada kolom baru di Favorite.java tetapi belum ada di database
+            // atau jika ada kesalahan penulisan nama kolom.
+            // Anda mungkin perlu meningkatkan DATABASE_VERSION dan menangani onUpgrade.
+        }
+        return favorite;
+    }
+}

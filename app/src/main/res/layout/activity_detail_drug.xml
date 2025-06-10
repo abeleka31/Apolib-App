@@ -1,0 +1,1508 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background">
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="26dp"
+            android:paddingEnd="26dp"
+            android:paddingTop="22dp"
+            android:paddingBottom="22dp">
+
+            <LinearLayout
+                android:id="@+id/linear_container"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/tv_pic_type"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:src="@drawable/pic_ask"
+                    android:contentDescription="Ikon Jenis Obat"
+                    android:scaleType="centerCrop"
+                    android:layout_marginEnd="12dp"
+                    android:layout_marginStart="12dp"
+                    android:clipToOutline="true"
+                    app:tint="@color/blue" />
+
+                <LinearLayout
+                    android:id="@+id/text_container_left"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="22dp"
+                    android:gravity="center_vertical"
+                    android:paddingVertical="2dp">
+
+                    <TextView
+                        android:id="@+id/tv_generic_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Paracetamol"
+                        android:textSize="18sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/blue"
+                        android:layout_marginBottom="2dp" />
+
+                    <TextView
+                        android:id="@+id/tv_brand_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Panadol"
+                        android:textSize="14sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"
+                        android:layout_marginBottom="1dp" />
+
+                    <TextView
+                        android:id="@+id/tv_drug_id"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ID: 12345"
+                        android:textSize="10sp"
+                        android:fontFamily="sans-serif-light"
+                        android:textStyle="italic"
+                        android:textColor="@color/text_secondary" />
+                    <TextView
+                        android:id="@+id/tvCurrentUser"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="10sp"
+                        android:text="Pembaca Saat Ini: "/>
+                    <TextView
+                        android:id="@+id/tvCurrentUserEmail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="10sp"
+                        android:text="Pembaca Saat Ini: "/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <View
+                android:id="@+id/line_info"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:background="@color/blue"
+                android:layout_marginTop="12dp"
+                app:layout_constraintTop_toBottomOf="@id/linear_container"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <TextView
+                android:id="@+id/container_umum"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Informasi Umum :"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/text_color"
+                android:layout_marginTop="12dp"
+                app:layout_constraintTop_toBottomOf="@id/line_info"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <LinearLayout
+                android:id="@+id/text_container_down"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="10dp"
+                android:gravity="center_vertical"
+                android:paddingVertical="2dp"
+                app:layout_constraintTop_toBottomOf="@+id/container_umum"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <TextView
+                    android:id="@+id/tv_effective_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Effective Time:"
+                    android:textSize="10sp"
+                    android:textStyle="italic"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/blue"
+                    android:layout_marginBottom="1dp" />
+
+                <TextView
+                    android:id="@+id/tv_version"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Versi 1.0"
+                    android:textSize="10sp"
+                    android:textStyle="italic"
+                    android:fontFamily="sans-serif"
+                    android:textColor="@color/text_color"
+                    android:layout_marginBottom="1dp" />
+
+                <TextView
+                    android:id="@+id/tv_set_id"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Set ID: 12345"
+                    android:textSize="10sp"
+                    android:fontFamily="sans-serif-light"
+                    android:textStyle="italic"
+                    android:textColor="@color/text_secondary" />
+            </LinearLayout>
+
+            <View
+                android:id="@+id/line_info2"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:background="@color/blue"
+                android:layout_marginTop="12dp"
+                app:layout_constraintTop_toBottomOf="@id/text_container_down"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <LinearLayout
+                android:id="@+id/container_detail_umum"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="10dp"
+                app:layout_constraintTop_toBottomOf="@id/line_info2"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <LinearLayout
+                    android:id="@+id/ll_manufaktur_name_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Produsen :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_manufaktur_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Produsen XYZ"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_product_type_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tipe Produk :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_product_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Produsen XYZ"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_route_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Rute Pemberian Obat :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_route"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Produsen XYZ"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_rxcui_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Kode Pengenal Standar (RXCUI) :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_rxcui"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Produsen XYZ"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_unii_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pengenal Unik Zat Aktif (UNII) :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_unii"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Produsen XYZ"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_pharm_class_epc_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Kelas Farmakologi EPC :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_pharm_class_epc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Produsen XYZ"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_pharm_class_moa_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Kelas Farmakologi MOA :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_pharm_class_moa"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Produsen XYZ"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_product_ndc_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Kode NDC Produk :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_product_ndc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Produsen XYZ"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_spl_set_id_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pengenal Set Label Produk (SPL Set ID) :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_spl_set_id"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Produsen XYZ"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/label_container_detail_klinis"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Informasi Detail Klinis :"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/text_color"
+                android:layout_marginTop="12dp"
+                app:layout_constraintTop_toBottomOf="@id/container_detail_umum"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <LinearLayout
+                android:id="@+id/container_detail_klinis"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="10dp"
+                app:layout_constraintTop_toBottomOf="@+id/label_container_detail_klinis"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <LinearLayout
+                    android:id="@+id/ll_active_ingredient_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Bahan Aktif :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_active_ingredient"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_inactive_ingredient_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Bahan Tidak Aktif :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_inactive_ingredient"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_description_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Deskripsi :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_description"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_indications_and_usage_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Indikasi dan Penggunaan :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_indications_and_usage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_dosage_and_administration_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Dosis dan Administrasi :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_dosage_and_administration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_contraindications_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Kontraindikasi :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_contraindications"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_warnings_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Peringatan :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_warnings"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_warnings_and_cautions_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Peringatan dan Hati-hati :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_warnings_and_cautions"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_boxed_warning_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Peringatan Berbingkai :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_boxed_warning"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_adverse_reactions_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Reaksi Merugikan :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_adverse_reactions"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_drug_interactions_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Interaksi Obat :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_drug_interactions"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_clinical_pharmacology_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Farmakologi Klinis :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_clinical_pharmacology"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_pharmacodynamics_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Farmakodinamik :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_pharmacodynamics"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_pharmacokinetics_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Farmakokinetik :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_pharmacokinetics"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_mechanism_of_action_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Mekanisme Aksi :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_mechanism_of_action"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_use_in_specific_populations_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Penggunaan pada Populasi Spesifik :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_use_in_specific_populations"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_pregnancy_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Kehamilan :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_pregnancy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_nursing_mothers_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Ibu Menyusui :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_nursing_mothers"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_pediatric_use_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Penggunaan pada Anak :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_pediatric_use"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_geriatric_use_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Penggunaan pada Lansia :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_geriatric_use"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_overdosage_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Overdosis :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_overdosage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_how_supplied_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Cara Penyediaan :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_how_supplied"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_storage_and_handling_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Penyimpanan dan Penanganan :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_storage_and_handling"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_patient_medication_information_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Informasi Pengobatan Pasien :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_patient_medication_information"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_spl_medguide_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Panduan Medis SPL :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_spl_medguide"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_spl_patient_package_insert_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Insert Paket Pasien SPL :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_spl_patient_package_insert"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_references_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Referensi :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_references"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_questions_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pertanyaan :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_questions"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/label_container_detail_support_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Informasi Tambahan :"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/text_color"
+                android:layout_marginTop="12dp"
+                app:layout_constraintTop_toBottomOf="@id/container_detail_klinis"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <LinearLayout
+                android:id="@+id/container_detail_support"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="10dp"
+                app:layout_constraintTop_toBottomOf="@+id/label_container_detail_support_label"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <LinearLayout
+                    android:id="@+id/ll_information_for_patients_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Informasi Tambahan untuk Pasien :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_information_for_patients"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_ask_doctor_or_pharmacist_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Kapan Bertanya ke Dokter atau Apoteker :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_ask_doctor_or_pharmacist"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_safe_handling_warning_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Peringatan Penanganan Aman :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_safe_handling_warning"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_user_safety_warnings_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Peringatan Keamanan Pengguna :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_user_safety_warnings"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_spl_unclassified_section_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Bagian Tidak Terklasifikasi SPL :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_spl_unclassified_section"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_controlled_substance_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Zat Terkontrol :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_controlled_substance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_drug_abuse_and_dependence_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Penyalahgunaan &amp; Ketergantungan Obat :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_drug_abuse_and_dependence"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_labor_and_delivery_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Persalinan dan Melahirkan :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_labor_and_delivery"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_laboratory_tests_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tes Laboratorium :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_laboratory_tests"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_nonclinical_toxicology_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Toksikologi Non-Klinis :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_nonclinical_toxicology"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_microbiology_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Mikrobiologi :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_microbiology"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_carcinogenesis_and_mutagenesis_and_impairment_of_fertility_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Karsinogenesis, Mutagenesis, &amp; Gangguan Kesuburan :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_carcinogenesis_and_mutagenesis_and_impairment_of_fertility"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_recent_major_changes_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Perubahan Besar Terkini pada Label :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_recent_major_changes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_risks_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Ringkasan Risiko :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_risks"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_stop_use_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Kapan Harus Berhenti Menggunakan Obat :"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_secondary"/>
+                    <TextView
+                        android:id="@+id/tv_stop_use"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat . . . ."
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_color"/>
+                </LinearLayout>
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/ivSaveFavorite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:src="@drawable/ic_save"
+        app:tint="@android:color/white"
+        app:backgroundTint="@color/blue"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

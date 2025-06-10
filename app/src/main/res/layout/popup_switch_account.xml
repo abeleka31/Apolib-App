@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/popup_container"
+    android:layout_width="300dp"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_popup_rounded"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:alpha="0.9"
+    android:layout_gravity="center">
+
+    <TextView
+        android:id="@+id/tv_popup_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Beralih Akun"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_color"
+        android:layout_gravity="center"
+        android:paddingBottom="12dp" />
+
+    <TextView
+        android:id="@+id/tv_popup_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="italic"
+        android:text="Apakah Anda ingin beralih akun Google?"
+        android:textSize="14sp"
+        android:paddingBottom="24dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:text="Batal"
+            android:textSize="12sp"
+            android:textColor="@color/blue"
+            android:stateListAnimator="@null" />
+        <Button
+            android:id="@+id/btn_ok"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Lanjut"
+            android:layout_marginStart="12dp"
+            android:background="@android:color/transparent"
+            android:textSize="12sp"
+            android:textColor="@color/blue"
+            android:stateListAnimator="@null"
+            />
+    </LinearLayout>
+
+</LinearLayout>

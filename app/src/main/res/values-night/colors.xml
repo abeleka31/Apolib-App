@@ -1,0 +1,31 @@
+<resources>
+    <!-- Latar dan Navigasi -->
+    <color name="white">#000000</color> <!-- “white” diganti jadi hitam -->
+    <color name="background">#121212</color> <!-- abu gelap utama -->
+    <color name="secondary_background">#1E1E1E</color> <!-- untuk card, container -->
+    <color name="nav_background">#1C1C1E</color> <!-- nav bar bawah -->
+
+    <!-- Warna Utama & Aksen -->
+    <color name="primary">#9E9E9E</color> <!-- abu terang sebagai aksen -->
+    <color name="accent">#7C7C7C</color> <!-- abu sedang -->
+    <color name="icon_color">#58A6FF</color> <!-- biru dingin sebagai link atau tombol -->
+    <color name="blue">#58A6FF</color> <!-- konsisten -->
+
+    <!-- Teks -->
+    <color name="text">#FFFFFF</color> <!-- teks utama putih -->
+    <color name="text_color">#FFFFFF</color>
+    <color name="text_secondary">#B0B0B0</color> <!-- teks sekunder abu muda -->
+    <color name="text_tertiary">#7A7A7A</color> <!-- teks tersier -->
+
+    <!-- Placeholder dan Pemisah -->
+    <color name="placeholder">#666666</color>
+    <color name="separator">#2C2C2E</color>
+
+    <!-- Container / Card -->
+    <color name="container">#1E1E1E</color>
+
+    <!-- Gray dan Navigasi -->
+    <color name="gray">#8E8E93</color> <!-- tetap bisa digunakan -->
+    <color name="nav_item_selected">#D0D0D0</color> <!-- item aktif -->
+    <color name="nav_item_unselected">#555555</color> <!-- item tidak aktif -->
+</resources>

@@ -1,0 +1,17 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.Apodicty" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Splash screen attributes -->
+        <item name="android:windowSplashScreenBackground" tools:targetApi="31">@color/background</item>
+        <item name="android:windowSplashScreenAnimatedIcon" tools:targetApi="31">@drawable/logoapolib</item>
+        <item name="android:windowSplashScreenAnimationDuration" tools:targetApi="31">300</item>
+        <!-- Standard theme attributes -->
+        <item name="android:windowBackground">@color/background</item>
+        <item name="android:textColor">@color/text</item>
+
+        <!-- Material Components attributes -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorOnPrimary">@color/text</item>
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorOnSecondary">@color/text</item>
+    </style>
+</resources>

@@ -1,0 +1,22 @@
+<resources>
+    <color name="white">#FFFFFF</color>
+    <color name="nav_background">#F6F9F7</color>
+
+    <color name="background">#F6F9F7</color> <!-- hijau mint terang -->
+    <color name="secondary_background">#E2F1EC</color> <!-- hijau susu -->
+    <color name="blue">#0A84FF</color> <!-- biru ala iOS (link/aksi) -->
+    <color name="text_color">#000000</color>
+    <color name="text_secondary">#555555</color>
+    <color name="text_tertiary">#999999</color>
+    <color name="placeholder">#A0A0A0</color>
+    <color name="separator">#D1D1D6</color>
+    <color name="container">#FFFFFF</color>
+    <color name="icon_color">#0A84FF</color>
+    <color name="accent">#4CAF50</color> <!-- hijau sehat -->
+    <color name="gray">#8E8E93</color>
+    <color name="primary">#4CAF50</color> <!-- hijau segar -->
+    <color name="text">#000000</color>
+    <color name="secondary">#A5D6A7</color> <!-- hijau lembut -->
+    <color name="nav_item_selected">#4CAF50</color>
+    <color name="nav_item_unselected">#A0A0A0</color>
+</resources>

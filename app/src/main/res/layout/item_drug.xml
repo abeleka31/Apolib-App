@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/tv_drug_item"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="12dp"
+    android:background="@drawable/bg_card"
+    android:elevation="2dp"
+    android:layout_marginBottom="8dp"
+    tools:ignore="OnClick">
+
+    <!-- Gambar di kiri -->
+    <ImageView
+        android:id="@+id/tv_pic_type"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginEnd="16dp"
+        android:scaleType="centerCrop"
+        android:contentDescription="Drug Type Icon"
+        android:src="@drawable/pic_ask"
+        android:clipToOutline="true"
+        android:layout_gravity="center_vertical"
+        app:tint="@color/blue" />
+
+    <!-- Kontainer teks di kanan -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_generic_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Name: Paracetamol"
+            android:textSize="16sp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="@color/text_color"
+            android:layout_marginBottom="2dp" />
+
+        <TextView
+            android:id="@+id/tv_brand_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Brand: Panadol"
+            android:textSize="15sp"
+            android:fontFamily="sans-serif"
+            android:textColor="@color/text_secondary"
+            android:layout_marginBottom="2dp" />
+
+        <TextView
+            android:id="@+id/tv_drug_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ID: 12345"
+            android:textSize="14sp"
+            android:fontFamily="sans-serif-light"
+            android:textStyle="italic"
+            android:textColor="#999999"
+            android:layout_marginBottom="2dp" />
+
+        <TextView
+            android:id="@+id/tv_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Type: Prescription Drug"
+            android:textSize="14sp"
+            android:fontFamily="sans-serif-medium"
+            android:textStyle="bold"
+            android:textColor="#007AFF" />
+
+    </LinearLayout>
+</LinearLayout>

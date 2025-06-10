@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@drawable/logoapolib"
+        android:label="@string/app_name"
+        android:roundIcon="@drawable/logoapolib"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Apodicty"
+        tools:targetApi="31">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Apodicty"
+            android:windowSoftInputMode="adjustPan"> <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+        </activity>
+        <activity android:name=".page.activity.EditProfileActivity" />
+        <activity android:name=".page.activity.DetailDrugActivity"
+            tools:ignore="Instantiatable" />
+
+    </application>
+</manifest>

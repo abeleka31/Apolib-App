@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    android:background="#F2F2F7">
+
+    <!-- Judul -->
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Edit Profil"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#000000"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Form Container -->
+    <LinearLayout
+        android:id="@+id/form_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/tv_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Label + Input: Username -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Username"
+            android:textSize="14sp"
+            android:textColor="#1C1C1E"/>
+        <EditText
+            android:id="@+id/et_username"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_rounded_corners"
+            android:padding="12dp"
+            android:textColor="#000000"
+            android:textSize="16sp"
+            android:layout_marginTop="4dp"
+            android:inputType="text"/>
+
+        <!-- Label + Input: Nama Lengkap -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Nama Lengkap"
+            android:textSize="14sp"
+            android:textColor="#1C1C1E"
+            android:layout_marginTop="16dp"/>
+        <EditText
+            android:id="@+id/et_nama"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_rounded_corners"
+            android:padding="12dp"
+            android:textColor="#000000"
+            android:textSize="16sp"
+            android:layout_marginTop="4dp"
+            android:inputType="textPersonName"/>
+
+        <!-- Label + Input: Email -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Email (tidak bisa diubah)"
+            android:textSize="14sp"
+            android:textColor="#1C1C1E"
+            android:layout_marginTop="16dp"/>
+        <EditText
+            android:id="@+id/et_email"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_rounded_corners"
+            android:padding="12dp"
+            android:textColor="#8E8E93"
+            android:textSize="16sp"
+            android:layout_marginTop="4dp"
+            android:enabled="false"
+            android:inputType="textEmailAddress"/>
+
+        <!-- Label + Input: Tanggal Lahir -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tanggal Lahir"
+            android:textSize="14sp"
+            android:textColor="#1C1C1E"
+            android:layout_marginTop="16dp"/>
+        <EditText
+            android:id="@+id/et_tanggal_lahir"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_rounded_corners"
+            android:padding="12dp"
+            android:textColor="#000000"
+            android:textSize="16sp"
+            android:layout_marginTop="4dp"
+            android:focusable="false"
+            android:inputType="none"/>
+
+        <!-- Label + Input: Instansi -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Instansi / Kampus"
+            android:textSize="14sp"
+            android:textColor="#1C1C1E"
+            android:layout_marginTop="16dp"/>
+        <EditText
+            android:id="@+id/et_instansi"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_rounded_corners"
+            android:padding="12dp"
+            android:textColor="#000000"
+            android:textSize="16sp"
+            android:layout_marginTop="4dp"
+            android:inputType="text"/>
+
+        <!-- Label + Input: Quotes -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Quotes Favorit"
+            android:textSize="14sp"
+            android:textColor="#1C1C1E"
+            android:layout_marginTop="16dp"/>
+        <EditText
+            android:id="@+id/et_quotes"
+            android:layout_width="match_parent"
+            android:layout_height="88dp"
+            android:background="@drawable/bg_rounded_corners"
+            android:padding="12dp"
+            android:textColor="#000000"
+            android:textSize="16sp"
+            android:layout_marginTop="4dp"
+            android:inputType="textMultiLine"
+            android:maxLines="3"/>
+
+    </LinearLayout>
+
+    <!-- Tombol Simpan dan Batal -->
+    <LinearLayout
+        android:id="@+id/button_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:layout_marginTop="32dp"
+        app:layout_constraintTop_toBottomOf="@id/form_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <Button
+            android:id="@+id/btn_batal"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="Batal"
+            android:background="@android:color/transparent"
+            android:textSize="12sp"
+            android:textColor="@color/blue"
+            android:stateListAnimator="@null" />
+
+        <Button
+            android:id="@+id/btn_simpan"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:text="simpan"
+            android:textSize="12sp"
+            android:textColor="@color/blue"
+            android:stateListAnimator="@null"/>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

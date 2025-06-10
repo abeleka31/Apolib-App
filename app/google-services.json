@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "907939500197",
+    "project_id": "apodicty",
+    "storage_bucket": "apodicty.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:907939500197:android:7d13877f91324ce8a67d4c",
+        "android_client_info": {
+          "package_name": "com.example.apodicty"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "907939500197-76iaoja7rdc1hesc13ktrqelmc7ggb2u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.apodicty",
+            "certificate_hash": "1e7da74d2ad80adf7eef0f8e29e31b874a14ce89"
+          }
+        },
+        {
+          "client_id": "907939500197-lvq7b2psonb65iio4ba6ijksdnmb94tq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAx_4ZRoUpYoIQyUViQJ-qL-bDeHUKBQU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "907939500197-lvq7b2psonb65iio4ba6ijksdnmb94tq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
