@@ -10,10 +10,12 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.apodicty.adapter.ViewPagerAdapter;
 import com.example.apodicty.ui.UiHelper;
+import com.example.apodicty.utils.ProgressBarListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.RelativeLayout;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -29,8 +31,11 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.DocumentSnapshot;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ProgressBarListener {
 
     private ViewPager2 viewPager;
     private BottomNavigationView bottomNavigationView;
@@ -41,19 +46,20 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String PREFS_NAME = "MyPrefs";
     private static final String LAST_SELECTED_TAB_KEY = "lastSelectedTab";
-    private static final String IS_FIRST_LAUNCH_KEY = "isFirstLaunch"; // <<< Kunci baru untuk flag
+    private static final String IS_FIRST_LAUNCH_KEY = "isFirstLaunch";
 
-    @Override // Hapus @SuppressLint("MissingSuperCall") karena ini sudah ditambahkan secara default
+    private RelativeLayout progressOverlay;
+    private ExecutorService executorService;
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Pastikan tema diterapkan sebelum setContentView untuk menghindari flicker/lag
         boolean isDarkMode = UiHelper.loadThemePref(this);
-        if (isDarkMode) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-        }
+        AppCompatDelegate.setDefaultNightMode(isDarkMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
+
 
         db = FirebaseFirestore.getInstance();
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
@@ -63,6 +69,9 @@ public class MainActivity extends AppCompatActivity {
 
         viewPager = findViewById(R.id.view_pager);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
+
+        progressOverlay = findViewById(R.id.progress_overlay);
+        executorService = Executors.newFixedThreadPool(2);
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -79,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int itemId = item.getItemId();
-                int selectedPosition = 0; // Default ke Home
+                int selectedPosition = 0;
 
                 if (itemId == R.id.navigation_home) {
                     selectedPosition = 0;
@@ -91,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
                     selectedPosition = 3;
                 }
                 viewPager.setCurrentItem(selectedPosition);
-                saveLastSelectedTab(selectedPosition); // Simpan posisi terpilih
+                saveLastSelectedTab(selectedPosition);
                 return true;
             }
         });
@@ -103,20 +112,18 @@ public class MainActivity extends AppCompatActivity {
                 if (mAuth.getCurrentUser() != null && !mAuth.getCurrentUser().isAnonymous()) {
                     bottomNavigationView.getMenu().getItem(position).setChecked(true);
                 }
-                saveLastSelectedTab(position); // Simpan posisi saat ViewPager2 berubah secara manual (swipe)
+                saveLastSelectedTab(position);
             }
         });
 
         bottomNavigationView.setVisibility(View.VISIBLE);
         viewPager.setUserInputEnabled(true);
 
-        // --- Logic untuk menentukan posisi awal ViewPager ---
-        if (isFirstLaunch()) { // <<< Cek apakah ini peluncuran pertama
-            viewPager.setCurrentItem(0, false); // Selalu ke Home (indeks 0)
+        if (isFirstLaunch()) {
+            viewPager.setCurrentItem(0, false);
             bottomNavigationView.getMenu().getItem(0).setChecked(true);
-            markAppLaunched(); // Tandai bahwa aplikasi sudah diluncurkan
+            markAppLaunched();
         } else {
-            // Jika bukan peluncuran pertama, muat posisi terakhir yang disimpan
             int lastSelectedTab = loadLastSelectedTab();
             viewPager.setCurrentItem(lastSelectedTab, false);
             bottomNavigationView.getMenu().getItem(lastSelectedTab).setChecked(true);
@@ -135,7 +142,28 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // --- Metode untuk menyimpan dan memuat posisi tab dan flag peluncuran ---
+    @Override
+    public void showProgressBar() {
+        runOnUiThread(() -> progressOverlay.setVisibility(View.VISIBLE));
+    }
+
+    @Override
+    public void hideProgressBar() {
+        runOnUiThread(() -> progressOverlay.setVisibility(View.GONE));
+    }
+
+    public ExecutorService getExecutorService() {
+        return executorService;
+    }
+
+    // Metode baru untuk memicu recreate dari Fragment
+    public void recreateActivityOnThemeChange() {
+        // Penting: Hanya panggil recreate() jika Activity tidak dalam proses finishing
+        if (!isFinishing()) {
+            recreate();
+        }
+    }
+
     private void saveLastSelectedTab(int position) {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
@@ -148,21 +176,17 @@ public class MainActivity extends AppCompatActivity {
         return prefs.getInt(LAST_SELECTED_TAB_KEY, 0);
     }
 
-    // Metode baru untuk memeriksa apakah aplikasi baru saja diluncurkan
     private boolean isFirstLaunch() {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        return prefs.getBoolean(IS_FIRST_LAUNCH_KEY, true); // Default true jika belum ada
+        return prefs.getBoolean(IS_FIRST_LAUNCH_KEY, true);
     }
 
-    // Metode baru untuk menandai bahwa aplikasi sudah diluncurkan
     private void markAppLaunched() {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean(IS_FIRST_LAUNCH_KEY, false);
         editor.apply();
     }
-    // --- Akhir metode SharedPreferences ---
-
 
     public void signInAnonymously() {
         mAuth.signInAnonymously()
@@ -172,9 +196,7 @@ public class MainActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             FirebaseUser user = mAuth.getCurrentUser();
                             ensureUserProfileExists(user);
-                            // Setelah sign-in anonim, selalu ke Home untuk peluncuran pertama
-                            // atau ke tab terakhir jika sudah pernah dibuka
-                            if (isFirstLaunch()) { // Cek lagi untuk kasus sign-in anonim setelah re-install
+                            if (isFirstLaunch()) {
                                 viewPager.setCurrentItem(0, false);
                                 bottomNavigationView.getMenu().getItem(0).setChecked(true);
                                 markAppLaunched();
@@ -231,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             mAuth.signOut();
-            saveLastSelectedTab(0); // Kembali ke Home setelah logout
+            saveLastSelectedTab(0);
             signInAnonymously();
         }
     }
@@ -243,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
                 mGoogleSignInClient.signOut();
             }
             mAuth.signOut();
-            saveLastSelectedTab(0); // Kembali ke Home setelah logout
+            saveLastSelectedTab(0);
             signInAnonymously();
         } else if (currentUser != null && currentUser.isAnonymous()) {
             viewPager.setCurrentItem(3);
@@ -257,4 +279,21 @@ public class MainActivity extends AppCompatActivity {
     public FirebaseFirestore getFirestoreInstance() {
         return db;
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (executorService != null && !executorService.isShutdown()) {
+            executorService.shutdown();
+            try {
+                if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
+                    executorService.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                executorService.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
 }

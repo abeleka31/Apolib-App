@@ -3,10 +3,11 @@ package com.example.apodicty.data.sqlitedatabase.database.favorite;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException; // Tambahkan ini
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import androidx.annotation.Nullable; // Import ini untuk @Nullable
+import androidx.annotation.Nullable;
 
 import com.example.apodicty.data.sqlitedatabase.database.DatabaseHelper;
 
@@ -23,14 +24,16 @@ public class FavoriteManager {
         dbHelper = new DatabaseHelper(context);
     }
 
-    public void open() {
-        // Pastikan database tidak null dan belum terbuka
+    public void open() throws SQLException { // Tambahkan 'throws SQLException'
+        // Hanya buka database jika belum dibuka atau null
         if (database == null || !database.isOpen()) {
             try {
                 database = dbHelper.getWritableDatabase();
-            } catch (Exception e) {
+                Log.d(TAG, "Database opened.");
+            } catch (SQLException e) { // Tangkap SQLException
                 Log.e(TAG, "Error opening database: " + e.getMessage());
-                // Handle error opening database, perhaps rethrow or show a user message
+                database = null; // Set database ke null jika gagal dibuka
+                throw e; // Lemparkan kembali exception agar ditangani pemanggil
             }
         }
     }
@@ -39,11 +42,56 @@ public class FavoriteManager {
         if (database != null && database.isOpen()) {
             dbHelper.close(); // dbHelper.close() akan menutup database
             database = null; // Set database ke null setelah ditutup
+            Log.d(TAG, "Database closed.");
         }
     }
 
+    // --- METODE BARU UNTUK MENGHITUNG FAVORIT BERDASARKAN EMAIL PENGGUNA ---
+    public int getFavoriteCountByUser(String email) {
+        int count = 0;
+        Cursor cursor = null;
+        try {
+            // Karena `open()` dan `close()` dikelola di Fragment/Activity,
+            // kita hanya perlu memastikan database terbuka di sini.
+            // Tidak perlu panggil open() atau close() lagi di dalam metode ini.
+            if (!isDbOpen()) {
+                Log.e(TAG, "Database not open for getFavoriteCountByUser. Email: " + email);
+                return 0; // Kembalikan 0 jika database tidak terbuka
+            }
+
+            String query = "SELECT COUNT(*) FROM " + DatabaseHelper.TABLE_FAVORIT +
+                    " WHERE " + DatabaseHelper.COL_EMAIL_FK + " = ?";
+            cursor = database.rawQuery(query, new String[]{email});
+
+            if (cursor != null && cursor.moveToFirst()) {
+                count = cursor.getInt(0); // COUNT(*) selalu di kolom pertama (indeks 0)
+            }
+            Log.d(TAG, "getFavoriteCountByUser: Email=" + email + ", Count=" + count);
+        } catch (Exception e) { // Tangkap Exception umum untuk log semua error
+            Log.e(TAG, "Error getting favorite count for email " + email + ": " + e.getMessage(), e); // Log stack trace
+            count = 0; // Kembalikan 0 jika ada error
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return count;
+    }
+    // ----------------------------------------------------------------------
+
+    // --- METODE UNTUK MEMASTIKAN STATUS DB (PENTING untuk semua metode CRUD) ---
+    public boolean isDbOpen() {
+        return database != null && database.isOpen();
+    }
+    // ---------------------------------------------------------------------------
+
+
     public boolean addFavorite(Favorite favorite) {
-        open(); // Pastikan database terbuka
+        if (!isDbOpen()) {
+            Log.e(TAG, "Database not open for addFavorite. Email: " + favorite.getEmailFk());
+            return false;
+        }
+
         ContentValues values = new ContentValues();
         values.put(DatabaseHelper.COL_ID_OBAT, favorite.getIdObat());
         values.put(DatabaseHelper.COL_EMAIL_FK, favorite.getEmailFk());
@@ -107,36 +155,29 @@ public class FavoriteManager {
         values.put(DatabaseHelper.COL_RECENTMAJORCHANGES, favorite.getRecentMajorChanges());
         values.put(DatabaseHelper.COL_RISKS, favorite.getRisks());
         values.put(DatabaseHelper.COL_STOPUSE, favorite.getStopUse());
-        values.put(DatabaseHelper.COL_CREATED_AT, favorite.getCreatedAt()); // Pastikan ini juga disisipkan
+        values.put(DatabaseHelper.COL_CREATED_AT, favorite.getCreatedAt());
 
         long result = database.insert(DatabaseHelper.TABLE_FAVORIT, null, values);
         Log.d(TAG, "addFavorite: result = " + result);
         return result != -1;
     }
 
-    /**
-     * Mengambil daftar semua obat favorit untuk email pengguna tertentu, dengan dukungan pencarian dan pengurutan.
-     * @param email Email pengguna yang favoritnya ingin diambil.
-     * @param searchQuery String pencarian (bisa null atau kosong untuk tidak mencari).
-     * @param sortBy Kolom untuk pengurutan (misal: DatabaseHelper.COL_CREATED_AT, DatabaseHelper.COL_GENERICNAME).
-     * @param sortOrder Urutan pengurutan ("ASC" atau "DESC").
-     * @return List objek Favorite.
-     */
     public List<Favorite> getFavoritesByUser(String email, @Nullable String searchQuery, @Nullable String sortBy, @Nullable String sortOrder) {
         List<Favorite> favoriteList = new ArrayList<>();
-        open(); // Pastikan database terbuka
-        Cursor cursor = null;
+        if (!isDbOpen()) {
+            Log.e(TAG, "Database not open for getFavoritesByUser. Email: " + email);
+            return favoriteList;
+        }
 
+        Cursor cursor = null;
         StringBuilder selection = new StringBuilder(DatabaseHelper.COL_EMAIL_FK + " = ?");
         List<String> selectionArgs = new ArrayList<>();
         selectionArgs.add(email);
 
-        // Menambahkan kondisi pencarian jika searchQuery tidak null dan tidak kosong
         if (searchQuery != null && !searchQuery.trim().isEmpty()) {
             String likeQuery = "%" + searchQuery.trim() + "%";
-            // Pencarian berdasarkan generic_name ATAU brand_name (case-insensitive)
             selection.append(" AND (")
-                    .append(DatabaseHelper.COL_GENERICNAME).append(" LIKE ? COLLATE NOCASE OR ") // COLLATE NOCASE untuk case-insensitive
+                    .append(DatabaseHelper.COL_GENERICNAME).append(" LIKE ? COLLATE NOCASE OR ")
                     .append(DatabaseHelper.COL_BRANDNAME).append(" LIKE ? COLLATE NOCASE)");
             selectionArgs.add(likeQuery);
             selectionArgs.add(likeQuery);
@@ -148,41 +189,44 @@ public class FavoriteManager {
             if (sortOrder != null && (sortOrder.equalsIgnoreCase("ASC") || sortOrder.equalsIgnoreCase("DESC"))) {
                 orderBy += " " + sortOrder;
             } else {
-                orderBy += " DESC"; // Default descending jika sortOrder tidak valid
+                orderBy += " DESC";
             }
         } else {
-            orderBy = DatabaseHelper.COL_CREATED_AT + " DESC"; // Default sort by creation time (terbaru ke terlama)
+            orderBy = DatabaseHelper.COL_CREATED_AT + " DESC";
         }
 
         try {
             cursor = database.query(
                     DatabaseHelper.TABLE_FAVORIT,
-                    null, // Mengambil semua kolom
+                    null,
                     selection.toString(),
                     selectionArgs.toArray(new String[0]),
                     null,
                     null,
-                    orderBy // Klausa Order By
+                    orderBy
             );
 
             if (cursor != null && cursor.moveToFirst()) {
                 do {
-                    favoriteList.add(parseFavoriteFromCursor(cursor)); // Menggunakan metode bantu
+                    favoriteList.add(parseFavoriteFromCursor(cursor));
                 } while (cursor.moveToNext());
             }
+            Log.d(TAG, "getFavoritesByUser: Email=" + email + ", Found=" + favoriteList.size() + " favorites.");
         } catch (Exception e) {
-            Log.e(TAG, "Error getting favorites by user with search/sort: " + e.getMessage());
+            Log.e(TAG, "Error getting favorites by user with search/sort: " + e.getMessage(), e);
         } finally {
             if (cursor != null) {
                 cursor.close();
             }
-            // close(); // Jangan menutup database di sini jika fragment akan terus menggunakannya
         }
         return favoriteList;
     }
 
     public int deleteFavorite(int idFavorite) {
-        open(); // Pastikan database terbuka
+        if (!isDbOpen()) {
+            Log.e(TAG, "Database not open for deleteFavorite by ID.");
+            return 0;
+        }
         String whereClause = DatabaseHelper.COL_ID_FAVORITE + " = ?";
         String[] whereArgs = { String.valueOf(idFavorite) };
         int rowsAffected = database.delete(DatabaseHelper.TABLE_FAVORIT, whereClause, whereArgs);
@@ -191,7 +235,10 @@ public class FavoriteManager {
     }
 
     public int deleteFavoriteByIdObatAndEmail(String idObat, String userEmail) {
-        open(); // Pastikan database terbuka
+        if (!isDbOpen()) {
+            Log.e(TAG, "Database not open for deleteFavoriteByIdObatAndEmail.");
+            return 0;
+        }
         String whereClause = DatabaseHelper.COL_ID_OBAT + " = ? AND " + DatabaseHelper.COL_EMAIL_FK + " = ?";
         String[] whereArgs = { idObat, userEmail };
         int rowsAffected = database.delete(DatabaseHelper.TABLE_FAVORIT, whereClause, whereArgs);
@@ -200,7 +247,10 @@ public class FavoriteManager {
     }
 
     public boolean isDrugFavorited(String idObat, String userEmail) {
-        open(); // Pastikan database terbuka
+        if (!isDbOpen()) {
+            Log.e(TAG, "Database not open for isDrugFavorited.");
+            return false;
+        }
         Cursor cursor = null;
         boolean isFavorited = false;
         try {
@@ -209,7 +259,7 @@ public class FavoriteManager {
 
             cursor = database.query(
                     DatabaseHelper.TABLE_FAVORIT,
-                    new String[]{DatabaseHelper.COL_ID_FAVORITE}, // Hanya ambil ID untuk efisiensi
+                    new String[]{DatabaseHelper.COL_ID_FAVORITE},
                     selection,
                     selectionArgs,
                     null,
@@ -217,8 +267,9 @@ public class FavoriteManager {
                     null
             );
             isFavorited = cursor != null && cursor.getCount() > 0;
+            Log.d(TAG, "isDrugFavorited: Drug " + idObat + " for " + userEmail + " is favorited: " + isFavorited);
         } catch (Exception e) {
-            Log.e(TAG, "Error checking favorite status: " + e.getMessage());
+            Log.e(TAG, "Error checking favorite status: " + e.getMessage(), e);
         } finally {
             if (cursor != null) {
                 cursor.close();
@@ -228,7 +279,10 @@ public class FavoriteManager {
     }
 
     public Favorite getFavoriteByIdObatAndEmail(String idObat, String userEmail) {
-        open(); // Pastikan database terbuka
+        if (!isDbOpen()) {
+            Log.e(TAG, "Database not open for getFavoriteByIdObatAndEmail.");
+            return null;
+        }
         Cursor cursor = null;
         Favorite favorite = null;
 
@@ -262,7 +316,7 @@ public class FavoriteManager {
                 DatabaseHelper.COL_LABORATORYTESTS, DatabaseHelper.COL_NONCLINICALTOXICOLOGY,
                 DatabaseHelper.COL_MICROBIOLOGY, DatabaseHelper.COL_CARCINOGENESISANDMUTAGENESISANDIMPAIRMENTOFFERTILITY,
                 DatabaseHelper.COL_RECENTMAJORCHANGES, DatabaseHelper.COL_RISKS,
-                DatabaseHelper.COL_STOPUSE, DatabaseHelper.COL_CREATED_AT // Pastikan ini juga ada
+                DatabaseHelper.COL_STOPUSE, DatabaseHelper.COL_CREATED_AT
         };
 
         try {
@@ -275,14 +329,15 @@ public class FavoriteManager {
                     selection,
                     selectionArgs,
                     null, null, null,
-                    "1" // LIMIT 1 karena kita hanya mencari satu record
+                    "1"
             );
 
             if (cursor != null && cursor.moveToFirst()) {
                 favorite = parseFavoriteFromCursor(cursor);
             }
+            Log.d(TAG, "getFavoriteByIdObatAndEmail: Drug " + idObat + " for " + userEmail + " found: " + (favorite != null));
         } catch (Exception e) {
-            Log.e(TAG, "Error getting single favorite by ID and email: " + e.getMessage());
+            Log.e(TAG, "Error getting single favorite by ID and email: " + e.getMessage(), e);
             favorite = null;
         } finally {
             if (cursor != null) {
@@ -292,12 +347,6 @@ public class FavoriteManager {
         return favorite;
     }
 
-    /**
-     * Metode bantu untuk mengurai objek Favorite dari Cursor.
-     * Ini mengurangi duplikasi kode saat mengisi objek Favorite.
-     * @param cursor Cursor yang berisi data Favorite.
-     * @return Objek Favorite yang terisi.
-     */
     private Favorite parseFavoriteFromCursor(Cursor cursor) {
         Favorite favorite = new Favorite();
         try {

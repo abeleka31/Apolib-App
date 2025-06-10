@@ -40,14 +40,9 @@
             android:inputType="text"
             android:maxLines="1"
             android:padding="10dp"
-            android:background="@drawable/bg_card" /> <ImageButton
-        android:id="@+id/btn_search"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="8dp"
-        android:src="@android:drawable/ic_menu_search"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Tombol Cari" />
+            android:background="@drawable/bg_card" />
+
+
 
         <ImageButton
             android:id="@+id/btn_sort"
@@ -60,13 +55,23 @@
 
     </LinearLayout>
 
+    <ProgressBar
+        android:id="@+id/progress_bar_search"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:visibility="gone" app:layout_constraintTop_toBottomOf="@id/search_sort_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_favorites"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
+        android:layout_marginBottom="50dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintTop_toBottomOf="@id/search_sort_container"
+        app:layout_constraintTop_toBottomOf="@id/progress_bar_search"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -1,4 +1,3 @@
-// com.example.apodicty.page.activity.DetailDrugActivity.java
 package com.example.apodicty.page.activity;
 
 import android.content.Context;
@@ -6,31 +5,47 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.apodicty.MainActivity;
+import com.example.apodicty.utils.MyApplication;
 import com.example.apodicty.R;
 import com.example.apodicty.data.networkApi.components.DrugRepository;
 import com.example.apodicty.data.networkApi.respon.DrugResponse;
 import com.example.apodicty.data.sqlitedatabase.database.favorite.Favorite;
 import com.example.apodicty.data.sqlitedatabase.database.favorite.FavoriteManager;
 import com.example.apodicty.databinding.ActivityDetailDrugBinding;
-import com.example.apodicty.utils.DrugDetailHelper; // Import the new helper class
+import com.example.apodicty.utils.DrugDetailHelper;
+import com.example.apodicty.utils.ProgressBarListener; // Pastikan ini diimpor jika Anda menggunakan ProgressBarListener
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors; // Untuk fallback ExecutorService, jika MyApplication belum diatur
+import java.util.concurrent.TimeUnit; // Untuk shutdown di onDestroy
+
 public class DetailDrugActivity extends AppCompatActivity {
     private ActivityDetailDrugBinding binding;
-    private DrugDetailHelper drugDetailHelper; // Instance of the helper
+    private DrugDetailHelper drugDetailHelper;
     private String drugIdIntent;
     private FirebaseAuth mAuth;
 
     private FavoriteManager favoriteManager;
     private String currentUserEmail;
 
-    private DrugResponse.Drug currentDisplayedDrug; // Drug object from API
-    private Favorite currentFavoriteDrug; // Drug object from SQLite (if offline)
+    private DrugResponse.Drug currentDisplayedDrug;
+    private Favorite currentFavoriteDrug;
+
+    // ProgressBarListener ini akan null jika DetailDrugActivity tidak diluncurkan dari MainActivity
+    // dan tidak ada mekanisme untuk meneruskan ProgressBarListener dari MainActivity.
+    // Jika Anda ingin indikator loading, pertimbangkan ProgressBar lokal.
+    private ProgressBarListener progressBarListener;
+    private ExecutorService executorService;
+
+    private static final String TAG = "DetailDrugActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,19 +53,86 @@ public class DetailDrugActivity extends AppCompatActivity {
         binding = ActivityDetailDrugBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        drugDetailHelper = new DrugDetailHelper(binding); // Initialize the helper
+        drugDetailHelper = new DrugDetailHelper(binding);
         mAuth = FirebaseAuth.getInstance();
         favoriteManager = new FavoriteManager(this);
 
+        // Ambil ExecutorService dari kelas Application kustom Anda
+        // Jika Anda belum membuat MyApplication, ini bisa jadi null.
+        // Untuk saat ini, kita akan tambahkan fallback jika MyApplication tidak diinisialisasi
+        if (getApplication() instanceof MyApplication) {
+            executorService = ((MyApplication) getApplication()).getApplicationExecutorService();
+        } else {
+            Log.e(TAG, "MyApplication not set up or not inheriting from MyApplication. Using local single thread executor.");
+            // Fallback: Inisialisasi ExecutorService lokal jika MyApplication tidak tersedia.
+            // Ini akan membuat aplikasi berfungsi, tapi mungkin tidak optimal jika ada banyak thread lain.
+            executorService = Executors.newSingleThreadExecutor();
+        }
+
+        // Inisialisasi ProgressBarListener HANYA JIKA Anda meluncurkan DetailDrugActivity dari MainActivity
+        // DAN ada mekanisme yang tepat untuk meneruskan ProgressBarListener (misalnya, static setter di MainActivity)
+        // Jika tidak, progressBarListener akan tetap null dan Anda harus mengelola ProgressBar lokal di Activity ini.
+        // Untuk menjaga kode tetap berfungsi, saya akan biarkan ini opsional (bisa null).
+        // Anda perlu menambahkan ProgressBar di layout ActivityDetailDrugBinding.xml jika ingin indikator loading.
+        // Contoh ProgressBar lokal di layout:
+        // <ProgressBar android:id="@+id/detail_progress_bar" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_centerInParent="true" android:visibility="gone" />
+        // Lalu inisialisasi di initViews jika ada.
+
         getIntentData();
         displayCurrentUser();
-        loadDrugDetails();
+        loadDrugDetails(); // Ini akan memicu pemuatan data dan mungkin menampilkan ProgressBar
         binding.ivSaveFavorite.setOnClickListener(v -> saveDrugToFavorites());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Buka database saat Activity resume
+        if (favoriteManager != null && !favoriteManager.isDbOpen()) { // Tambahkan isDbOpen() check
+            try {
+                favoriteManager.open();
+                Log.d(TAG, "FavoriteManager opened in onResume.");
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to open FavoriteManager in onResume: " + e.getMessage(), e);
+                Toast.makeText(this, "Gagal membuka database favorit.", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Tutup database saat Activity pause
+        if (favoriteManager != null && favoriteManager.isDbOpen()) { // Tambahkan isDbOpen() check
+            favoriteManager.close();
+            Log.d(TAG, "FavoriteManager closed in onPause.");
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Jika ExecutorService adalah instance lokal (bukan dari Application),
+        // maka perlu di-shutdown di sini.
+        // Karena kita mengambil dari MyApplication, dia yang akan mengelola shutdown.
+        // Jika Anda menggunakan fallback ExecutorService (misal Executors.newSingleThreadExecutor()),
+        // maka Anda perlu me-shutdown-nya di sini:
+        // if (executorService != null && !executorService.isShutdown()) {
+        //     executorService.shutdown();
+        //     try {
+        //         if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
+        //             executorService.shutdownNow();
+        //         }
+        //     } catch (InterruptedException e) {
+        //         executorService.shutdownNow();
+        //         Thread.currentThread().interrupt();
+        //     }
+        // }
     }
 
     private void getIntentData() {
         drugIdIntent = getIntent().getStringExtra("id");
-        Log.d("DetailDrugActivity", "Received ID: " + drugIdIntent);
+        Log.d(TAG, "Received ID: " + drugIdIntent);
     }
 
     private void displayCurrentUser() {
@@ -86,15 +168,48 @@ public class DetailDrugActivity extends AppCompatActivity {
 
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+        if (connectivityManager != null) {
+            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+            return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+        }
+        return false;
     }
+
+    private void showLoadingIndicator() {
+        // Ini adalah tempat Anda menampilkan ProgressBar lokal Anda.
+        // Asumsi ada ProgressBar dengan ID binding.localProgressBar di layout Anda.
+        // Contoh:
+        // if (binding.localProgressBar != null) {
+        //     binding.localProgressBar.setVisibility(View.VISIBLE);
+        // }
+        // Atau, jika Anda menggunakan ProgressBarListener yang global dan di-set dari MainActivity:
+        if (progressBarListener != null) {
+            runOnUiThread(() -> progressBarListener.showProgressBar());
+        } else {
+            Log.d(TAG, "No loading indicator mechanism available.");
+        }
+    }
+
+    private void hideLoadingIndicator() {
+        // Ini adalah tempat Anda menyembunyikan ProgressBar lokal Anda.
+        // Contoh:
+        // if (binding.localProgressBar != null) {
+        //     binding.localProgressBar.setVisibility(View.GONE);
+        // }
+        // Atau, jika Anda menggunakan ProgressBarListener yang global:
+        if (progressBarListener != null) {
+            runOnUiThread(() -> progressBarListener.hideProgressBar());
+        }
+    }
+
 
     private void loadDrugDetails() {
         if (drugIdIntent == null || drugIdIntent.isEmpty()) {
             showError("ID Obat tidak ditemukan di intent");
             return;
         }
+
+        showLoadingIndicator(); // Tampilkan loading
 
         if (isNetworkAvailable()) {
             Toast.makeText(this, "Online: Mengambil data dari API...", Toast.LENGTH_SHORT).show();
@@ -110,37 +225,52 @@ public class DetailDrugActivity extends AppCompatActivity {
             @Override
             public void onSuccess(DrugResponse.Drug drug) {
                 currentDisplayedDrug = drug;
-                drugDetailHelper.displayDrugData(drug); // Use helper to display
-                checkFavoriteStatus();
+                runOnUiThread(() -> {
+                    drugDetailHelper.displayDrugData(drug);
+                    checkFavoriteStatus();
+                    hideLoadingIndicator(); // Sembunyikan setelah sukses
+                });
             }
 
             @Override
             public void onError(String message) {
-                Toast.makeText(DetailDrugActivity.this, "Gagal memuat data dari API: " + message + ". Mencoba dari favorit...", Toast.LENGTH_LONG).show();
-                Log.e("DetailDrugActivity", "API Error: " + message);
-                loadDrugDataFromFavorites();
+                runOnUiThread(() -> {
+                    Toast.makeText(DetailDrugActivity.this, "Gagal memuat data dari API: " + message + ". Mencoba dari favorit...", Toast.LENGTH_LONG).show();
+                    Log.e(TAG, "API Error: " + message);
+                    loadDrugDataFromFavorites(); // Ini akan memicu loading lagi jika diperlukan
+                });
             }
         });
     }
 
     private void loadDrugDataFromFavorites() {
-        favoriteManager.open();
-        Favorite favorite = favoriteManager.getFavoriteByIdObatAndEmail(drugIdIntent, currentUserEmail);
-        favoriteManager.close();
-
-        if (favorite != null) {
-            currentFavoriteDrug = favorite;
-            drugDetailHelper.displayFavoriteData(favorite); // Use helper to display
-            checkFavoriteStatus();
-        } else {
-            showError("Obat tidak ditemukan di favorit lokal dan tidak ada koneksi internet.");
-            Toast.makeText(this, "Data obat tidak tersedia offline.", Toast.LENGTH_LONG).show();
+        if (executorService == null) {
+            Log.e(TAG, "ExecutorService is null, cannot load drug data from favorites in background.");
+            Toast.makeText(this, "Aplikasi mengalami masalah internal (Executor).", Toast.LENGTH_LONG).show();
+            hideLoadingIndicator(); // Sembunyikan loading jika executor null
+            return;
         }
+
+        executorService.execute(() -> {
+            Favorite favorite = favoriteManager.getFavoriteByIdObatAndEmail(drugIdIntent, currentUserEmail);
+
+            runOnUiThread(() -> {
+                if (favorite != null) {
+                    currentFavoriteDrug = favorite;
+                    drugDetailHelper.displayFavoriteData(favorite);
+                    checkFavoriteStatus();
+                } else {
+                    showError("Obat tidak ditemukan di favorit lokal dan tidak ada koneksi internet.");
+                    Toast.makeText(DetailDrugActivity.this, "Data obat tidak tersedia offline.", Toast.LENGTH_LONG).show();
+                }
+                hideLoadingIndicator(); // Sembunyikan setelah selesai
+            });
+        });
     }
 
     private void showError(String errorText) {
         binding.tvDrugId.setText(errorText);
-        drugDetailHelper.clearAllDrugTextViews(); // Use helper to clear
+        drugDetailHelper.clearAllDrugTextViews();
     }
 
     private void saveDrugToFavorites() {
@@ -161,11 +291,9 @@ public class DetailDrugActivity extends AppCompatActivity {
 
         Favorite favoriteToSave;
         if (currentDisplayedDrug != null) {
-            // Use the helper to map API data to a Favorite object
             favoriteToSave = drugDetailHelper.mapDrugResponseToFavorite(currentDisplayedDrug, currentUserEmail);
         } else {
-            // If API data is not available, use the currently loaded favorite data
-            favoriteToSave = currentFavoriteDrug; // No need to map, it's already a Favorite object
+            favoriteToSave = currentFavoriteDrug;
         }
 
         if (favoriteToSave == null) {
@@ -173,40 +301,52 @@ public class DetailDrugActivity extends AppCompatActivity {
             return;
         }
 
-        // Ensure ID and email are set for favorite operations, even if derived from currentFavoriteDrug
-        // This is important because currentFavoriteDrug might not have all fields populated if it came from an older, incomplete save.
-        // However, mapDrugResponseToFavorite will populate all fields if currentDisplayedDrug is available.
-        // For currentFavoriteDrug, we assume it's already valid.
-        String drugIdForDb = favoriteToSave.getIdObat(); // This should be already set by mapDrugResponseToFavorite or from currentFavoriteDrug
-        String userEmailForDb = favoriteToSave.getEmailFk(); // This should be already set
+        showLoadingIndicator(); // Tampilkan loading
 
-        if (isDrugFavorited(drugIdForDb, userEmailForDb)) {
-            int rowsDeleted = favoriteManager.deleteFavoriteByIdObatAndEmail(drugIdForDb, userEmailForDb);
-            if (rowsDeleted > 0) {
-                Toast.makeText(this, "Berhasil dihapus dari favorit!", Toast.LENGTH_SHORT).show();
-                binding.ivSaveFavorite.setImageResource(R.drawable.ic_save);
-                // Optionally, you might want to refresh the UI or finish the activity
-                // finish(); // Consider if finishing is the desired behavior
-            } else {
-                Toast.makeText(this, "Gagal menghapus dari favorit.", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            boolean success = favoriteManager.addFavorite(favoriteToSave);
-            if (success) {
-                Toast.makeText(this, "Berhasil ditambahkan ke favorit!", Toast.LENGTH_SHORT).show();
-                binding.ivSaveFavorite.setImageResource(R.drawable.ic_saved);
-            } else {
-                Toast.makeText(this, "Gagal menambahkan ke favorit.", Toast.LENGTH_SHORT).show();
-            }
+        if (executorService == null) {
+            Log.e(TAG, "ExecutorService is null, cannot save/delete favorite in background.");
+            Toast.makeText(this, "Aplikasi mengalami masalah internal (Executor).", Toast.LENGTH_LONG).show();
+            hideLoadingIndicator(); // Sembunyikan loading jika executor null
+            return;
         }
-        checkFavoriteStatus(); // Always update UI after save/delete
-    }
 
-    private boolean isDrugFavorited(String drugId, String userEmail) {
-        favoriteManager.open();
-        boolean isFavorited = favoriteManager.isDrugFavorited(drugId, userEmail);
-        favoriteManager.close();
-        return isFavorited;
+        String drugIdForDb = favoriteToSave.getIdObat();
+        String userEmailForDb = favoriteToSave.getEmailFk();
+
+        executorService.execute(() -> {
+            boolean isAlreadyFavorited = favoriteManager.isDrugFavorited(drugIdForDb, userEmailForDb);
+
+            runOnUiThread(() -> {
+                boolean operationSuccess;
+                String toastMessage;
+                int imageResource;
+
+                if (isAlreadyFavorited) {
+                    int rowsDeleted = favoriteManager.deleteFavoriteByIdObatAndEmail(drugIdForDb, userEmailForDb);
+                    operationSuccess = (rowsDeleted > 0);
+                    toastMessage = operationSuccess ? "Berhasil dihapus dari favorit!" : "Gagal menghapus dari favorit.";
+                    imageResource = operationSuccess ? R.drawable.ic_save : R.drawable.ic_saved;
+                    if (operationSuccess) {
+                        Toast.makeText(DetailDrugActivity.this, toastMessage, Toast.LENGTH_SHORT).show();
+                        // Anda mungkin tidak perlu mengubah gambar ikon jika Activity akan ditutup.
+                        // binding.ivSaveFavorite.setImageResource(imageResource); // Opsional, bisa dihapus
+                        hideLoadingIndicator(); // Sembunyikan loading sebelum finish
+                        finish(); // <<< Tambahkan ini untuk menutup Activity
+                        return; // Penting: Keluar dari block ini setelah finish()
+                    }
+                } else {
+                    operationSuccess = favoriteManager.addFavorite(favoriteToSave);
+                    toastMessage = operationSuccess ? "Berhasil ditambahkan ke favorit!" : "Gagal menambahkan ke favorit.";
+                    imageResource = operationSuccess ? R.drawable.ic_saved : R.drawable.ic_save;
+                }
+
+                Toast.makeText(DetailDrugActivity.this, toastMessage, Toast.LENGTH_SHORT).show();
+                binding.ivSaveFavorite.setImageResource(imageResource);
+
+                checkFavoriteStatus(); // Update ikon favorit setelah operasi
+                hideLoadingIndicator(); // Sembunyikan setelah operasi selesai
+            });
+        });
     }
 
     private void checkFavoriteStatus() {
@@ -225,11 +365,22 @@ public class DetailDrugActivity extends AppCompatActivity {
             return;
         }
 
-        if (isDrugFavorited(drugIdToCheck, currentUserEmail)) {
-            binding.ivSaveFavorite.setImageResource(R.drawable.ic_saved);
-        } else {
+        if (executorService == null) {
+            Log.e(TAG, "ExecutorService is null, cannot check favorite status in background.");
             binding.ivSaveFavorite.setImageResource(R.drawable.ic_save);
+            return;
         }
+
+        executorService.execute(() -> {
+            boolean isFavorited = favoriteManager.isDrugFavorited(drugIdToCheck, currentUserEmail);
+            runOnUiThread(() -> {
+                if (isFavorited) {
+                    binding.ivSaveFavorite.setImageResource(R.drawable.ic_saved);
+                } else {
+                    binding.ivSaveFavorite.setImageResource(R.drawable.ic_save);
+                }
+            });
+        });
     }
 
     private void saveUserEmailToSharedPreferences(String email) {
@@ -238,6 +389,4 @@ public class DetailDrugActivity extends AppCompatActivity {
                 .putString("logged_in_email", email)
                 .apply();
     }
-
-
 }

@@ -11,11 +11,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.apodicty.MainActivity; // <<< IMPORT INI
 import com.example.apodicty.R;
 import com.example.apodicty.data.sqlitedatabase.database.favorite.Favorite;
+import com.example.apodicty.utils.ProgressBarListener; // <<< IMPORT INI
 import com.example.apodicty.page.activity.DetailDrugActivity;
+import com.example.apodicty.ui.UiHelper; // Jika Anda menggunakan UiHelper.setupAnimatedClick
 
 import java.util.List;
+import java.util.concurrent.ExecutorService; // <<< IMPORT INI
+import java.util.concurrent.TimeUnit; // <<< IMPORT INI (untuk simulasi delay)
 
 public class FavoriteDrugAdapter extends RecyclerView.Adapter<FavoriteDrugAdapter.FavoriteViewHolder> {
 
@@ -23,16 +28,30 @@ public class FavoriteDrugAdapter extends RecyclerView.Adapter<FavoriteDrugAdapte
     private Context context;
     private OnItemClickListener listener; // Deklarasi listener
 
+    // Variabel baru untuk ProgressBarListener dan ExecutorService
+    private ProgressBarListener progressBarListener; // <<< DEKLARASI INI
+    private ExecutorService executorService;         // <<< DEKLARASI INI
+
     // Interface untuk click listener
     public interface OnItemClickListener {
         void onItemClick(Favorite favorite);
     }
 
-    // Ubah constructor untuk menerima listener
+    // Ubah constructor untuk menerima listener, ProgressBarListener, dan ExecutorService
     public FavoriteDrugAdapter(Context context, List<Favorite> favoriteList, OnItemClickListener listener) {
         this.context = context;
         this.favoriteList = favoriteList;
         this.listener = listener;
+
+        // Inisialisasi ProgressBarListener dan ExecutorService dari Context (MainActivity)
+        if (context instanceof MainActivity) {
+            this.progressBarListener = (MainActivity) context; // Casting ke ProgressBarListener
+            this.executorService = ((MainActivity) context).getExecutorService(); // Dapatkan ExecutorService
+        } else {
+            // Jika adapter digunakan di luar MainActivity yang mengimplementasikan listener,
+            // Anda mungkin perlu strategi yang berbeda atau throw exception
+            throw new RuntimeException(context.toString() + " must be MainActivity or implement ProgressBarListener and provide ExecutorService");
+        }
     }
 
     public void setFavoriteList(List<Favorite> newFavoriteList) {
@@ -58,9 +77,37 @@ public class FavoriteDrugAdapter extends RecyclerView.Adapter<FavoriteDrugAdapte
 
         setProductTypeImage(holder.ivProductTypeIcon, favorite.getProductType());
 
-        // Gunakan listener yang diteruskan dari fragment
+        // Gunakan listener yang diteruskan dari fragment, dan tambahkan Executor
         holder.itemView.setOnClickListener(v -> {
-            if (listener != null) {
+            if (listener != null && progressBarListener != null && executorService != null) {
+                // Tampilkan ProgressBar sebelum memulai tugas background
+                progressBarListener.showProgressBar();
+
+                // Jalankan tugas di background thread
+                executorService.execute(() -> {
+                    try {
+                        Thread.sleep(1500); // Simulasi delay 1.5 detik (misalnya mengambil detail data)
+
+                        // Setelah tugas selesai, sembunyikan ProgressBar dan panggil listener
+                        if (context instanceof MainActivity) { // Pastikan context adalah Activity untuk runOnUiThread
+                            ((MainActivity) context).runOnUiThread(() -> {
+                                progressBarListener.hideProgressBar(); // Sembunyikan ProgressBar
+                                listener.onItemClick(favorite); // Panggil listener untuk membuka DetailDrugActivity
+                            });
+                        }
+
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        if (context instanceof MainActivity) {
+                            ((MainActivity) context).runOnUiThread(() -> {
+                                progressBarListener.hideProgressBar(); // Sembunyikan ProgressBar jika dibatalkan
+                                // Opsional: Tampilkan Toast error
+                            });
+                        }
+                    }
+                });
+            } else if (listener != null) {
+                // Fallback jika ProgressBar atau ExecutorService tidak tersedia
                 listener.onItemClick(favorite);
             }
         });

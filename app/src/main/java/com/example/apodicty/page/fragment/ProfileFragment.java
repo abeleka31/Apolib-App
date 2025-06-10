@@ -16,13 +16,18 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.net.Uri; // <<< Tambahkan import ini untuk Uri
+import android.content.ActivityNotFoundException; // <<< Tambahkan import ini
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 import com.example.apodicty.data.sqlitedatabase.database.user.UserManager;
 import com.example.apodicty.data.sqlitedatabase.database.user.User;
+import com.example.apodicty.data.sqlitedatabase.database.favorite.FavoriteManager;
 import com.example.apodicty.page.activity.EditProfileActivity;
 import com.example.apodicty.MainActivity;
 import com.example.apodicty.R;
@@ -44,12 +49,15 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class ProfileFragment extends Fragment {
 
     private TextView tvUsername, profileStatusText, profileNameText, profileEmailText,
             tvEmailVerifiedStatus, tvAccountType, tvName, profile_status_text,
-            tvBirth, tvInstansi, tvQuotes;
+            tvBirth, tvInstansi, tvQuotes, textFavCount;
     private Button btnAccountAction;
     private ImageButton btnDropdown;
     private boolean isSwitchListenerActive = false;
@@ -59,7 +67,9 @@ public class ProfileFragment extends Fragment {
     private GoogleSignInClient mGoogleSignInClient;
     private Switch switchTheme;
     private UserManager userManager;
-    private SharedPreferences sharedPreferences;
+    private FavoriteManager favoriteManager;
+
+    private ExecutorService executorService;
 
     private static final int RC_SIGN_IN_GOOGLE_SWITCH = 9003;
     private static final String TAG = "ProfileFragment";
@@ -69,19 +79,29 @@ public class ProfileFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_profile, container, false);
-        userManager = new UserManager(requireContext());
-        // --- PERBAIKAN DI SINI: BUKA DATABASE SEBELUM MELAKUKAN OPERASI DATABASE ---
-        userManager.open(); // Pastikan database dibuka di onCreateView
-        // --- AKHIR PERBAIKAN ---
-
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(requireContext(), gso);
+
+        executorService = Executors.newSingleThreadExecutor();
+    }
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_profile, container, false);
+
         initViews(view);
 
-        boolean isDarkMode = UiHelper.loadThemePref(requireContext());
+        userManager = new UserManager(requireContext());
+        favoriteManager = new FavoriteManager(requireContext());
 
         isSwitchListenerActive = false;
+        boolean isDarkMode = UiHelper.loadThemePref(requireContext());
         switchTheme.setChecked(isDarkMode);
         isSwitchListenerActive = true;
 
@@ -94,12 +114,14 @@ public class ProfileFragment extends Fragment {
             } else {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
             }
-            requireActivity().recreate();
+
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).recreateActivityOnThemeChange();
+            }
         });
 
         setupListeners();
         setupFirebase();
-        // Langsung panggil updateUI di sini
         updateUI();
 
         return view;
@@ -118,6 +140,7 @@ public class ProfileFragment extends Fragment {
         infoDetail = view.findViewById(R.id.info_detail);
         header_information = view.findViewById(R.id.header_information);
         tv_favoriteCount = view.findViewById(R.id.tv_favorite_count);
+        textFavCount = view.findViewById(R.id.text_fav_count);
 
         tvName = view.findViewById(R.id.tvName);
         tvUsername = view.findViewById(R.id.tvUsername);
@@ -127,30 +150,44 @@ public class ProfileFragment extends Fragment {
         profile_status_text = view.findViewById(R.id.profile_status_text);
         switchTheme = view.findViewById(R.id.switchTheme);
         btn_editProfile = view.findViewById(R.id.btn_editProfile);
-
     }
 
     private void setupListeners() {
-        UiHelper.setupAnimatedClick(btnGuide, () -> requireActivity());
+        // --- Perubahan di sini: Mengatur onClickListener untuk btnGuide ---
+        UiHelper.setupAnimatedClick(btnGuide, () -> {
+            String googleDrivePdfUrl = "https://drive.google.com/file/d/1_epqrIT4SruRoRLCv95YvBUu9AjEgNQ3/view?usp=sharing"; // URL PDF Anda
+            String viewerUrl = "https://docs.google.com/viewer?url=" + Uri.encode(googleDrivePdfUrl);
+            Uri uri = Uri.parse(viewerUrl);
 
-        btnDropdown.setOnClickListener(v -> {
-            if (infoDetail.getVisibility() == View.GONE) {
-                infoDetail.setVisibility(View.VISIBLE);
-                btnDropdown.setImageResource(R.drawable.ic_dropup);
-            } else {
-                infoDetail.setVisibility(View.GONE);
-                btnDropdown.setImageResource(R.drawable.ic_dropdown);
+            Intent chromeIntent = new Intent(Intent.ACTION_VIEW);
+            chromeIntent.setData(uri);
+            chromeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+            // Package name untuk Google Chrome
+            String chromePackage = "com.android.chrome";
+            chromeIntent.setPackage(chromePackage); // Coba paksa ke Chrome
+
+            try {
+                startActivity(chromeIntent);
+            } catch (ActivityNotFoundException e) {
+                // Fallback: Jika Chrome tidak ditemukan atau gagal dibuka, coba dengan browser default lainnya
+                Log.w(TAG, "Chrome not found or failed to open. Trying with default browser. Error: " + e.getMessage());
+                Intent defaultBrowserIntent = new Intent(Intent.ACTION_VIEW);
+                defaultBrowserIntent.setData(uri);
+                defaultBrowserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+                if (defaultBrowserIntent.resolveActivity(requireActivity().getPackageManager()) != null) {
+                    startActivity(defaultBrowserIntent);
+                } else {
+                    // Jika tidak ada browser sama sekali yang bisa menangani
+                    Log.e(TAG, "Tidak ada aplikasi browser yang ditemukan untuk membuka tautan: " + viewerUrl);
+                    Toast.makeText(requireContext(), "Tidak ada aplikasi browser yang terinstal untuk membuka panduan ini.", Toast.LENGTH_LONG).show();
+                }
             }
         });
-        UiHelper.setupAnimatedClick(header_information, () -> {
-            if (infoDetail.getVisibility() == View.GONE) {
-                infoDetail.setVisibility(View.VISIBLE);
-                btnDropdown.setImageResource(R.drawable.ic_dropup);
-            } else {
-                infoDetail.setVisibility(View.GONE);
-                btnDropdown.setImageResource(R.drawable.ic_dropdown);
-            }
-        });
+
+        btnDropdown.setOnClickListener(v -> toggleInfoDetail());
+        UiHelper.setupAnimatedClick(header_information, () -> toggleInfoDetail());
 
         UiHelper.setupAnimatedClick(btn_editProfile, () -> {
             Intent intent = new Intent(getActivity(), EditProfileActivity.class);
@@ -167,28 +204,33 @@ public class ProfileFragment extends Fragment {
         });
     }
 
-    private void setupFirebase() {
-        MainActivity mainActivity = (MainActivity) getActivity();
-        if (mainActivity != null) {
-            mAuth = FirebaseAuth.getInstance();
-            db = mainActivity.getFirestoreInstance();
+    private void toggleInfoDetail() {
+        if (infoDetail.getVisibility() == View.GONE) {
+            infoDetail.setVisibility(View.VISIBLE);
+            btnDropdown.setImageResource(R.drawable.ic_dropup);
+        } else {
+            infoDetail.setVisibility(View.GONE);
+            btnDropdown.setImageResource(R.drawable.ic_dropdown);
+        }
+    }
 
-            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                    .requestIdToken(getString(R.string.default_web_client_id))
-                    .requestEmail()
-                    .build();
-            mGoogleSignInClient = GoogleSignIn.getClient(getContext(), gso);
+    private void setupFirebase() {
+        if (db == null) {
+            MainActivity mainActivity = (MainActivity) getActivity();
+            if (mainActivity != null) {
+                db = mainActivity.getFirestoreInstance();
+            }
         }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        // Pastikan database sudah dibuka di sini juga, meskipun sudah di onCreateView.
-        // onResume dipanggil setiap kali fragment kembali ke foreground,
-        // jadi memastikan database terbuka di sini adalah praktik yang baik.
         if (userManager != null) {
             userManager.open();
+        }
+        if (favoriteManager != null) {
+            favoriteManager.open();
         }
         updateUI();
     }
@@ -196,14 +238,65 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        // Tutup database saat fragment tidak lagi di foreground
         if (userManager != null) {
             userManager.close();
         }
+        if (favoriteManager != null) {
+            favoriteManager.close();
+        }
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        tvUsername = null; tvEmailVerifiedStatus = null; tvAccountType = null;
+        tvName = null; profile_status_text = null; tvBirth = null;
+        tvInstansi = null; tvQuotes = null; profileStatusText = null;
+        profileNameText = null; profileEmailText = null; textFavCount = null;
+        btnAccountAction = null; btnDropdown = null; switchTheme = null;
+        infoDetail = null; header_information = null; btn_editProfile = null;
+        btnGuide = null; tv_favoriteCount = null;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (userManager != null) {
+            userManager.close();
+        }
+        if (favoriteManager != null) {
+            favoriteManager.close();
+        }
+        if (executorService != null && !executorService.isShutdown()) {
+            executorService.shutdown();
+            try {
+                if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
+                    executorService.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                executorService.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+
     private void updateUI() {
+        if (!isAdded() || getContext() == null) {
+            Log.w(TAG, "Fragment not attached or context is null, skipping updateUI.");
+            return;
+        }
+
         FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        if (profileStatusText == null || profileNameText == null || profileEmailText == null ||
+                tvEmailVerifiedStatus == null || tvAccountType == null || tvName == null ||
+                profile_status_text == null || btnAccountAction == null || btn_editProfile == null ||
+                tvBirth == null || tvInstansi == null || tvQuotes == null || tvUsername == null ||
+                textFavCount == null) {
+            Log.e(TAG, "One or more UI views are null in updateUI. Re-check initViews.");
+            return;
+        }
 
         profileStatusText.setVisibility(View.VISIBLE);
         profileNameText.setVisibility(View.VISIBLE);
@@ -219,7 +312,12 @@ public class ProfileFragment extends Fragment {
         tvQuotes.setVisibility(View.GONE);
         tvUsername.setVisibility(View.GONE);
 
+
         if (currentUser != null) {
+            String userEmail = currentUser.isAnonymous() ? "guest@example.com" : (currentUser.getEmail() != null ? currentUser.getEmail() : "guest@example.com");
+
+            updateFavoriteCount(userEmail);
+
             if (currentUser.isAnonymous()) {
                 profileStatusText.setText("Status Akun Anda:");
                 tvAccountType.setText("Tipe Akun: Guest (Anonim)");
@@ -260,18 +358,22 @@ public class ProfileFragment extends Fragment {
                 btn_editProfile.setVisibility(View.VISIBLE);
                 btnAccountAction.setText("Logout");
 
-                String userEmail = currentUser.getEmail();
                 if (userEmail != null && !userEmail.isEmpty()) {
-                    User userProfile = userManager.getUser(userEmail);
+                    User userProfile = null;
+                    if (userManager != null && userManager.isDbOpen()) {
+                        userProfile = userManager.getUser(userEmail);
+                    } else {
+                        Log.w(TAG, "UserManager or database not ready, cannot fetch local user data.");
+                    }
 
                     if (userProfile != null) {
                         Log.d(TAG, "User data from DB: " + userProfile.getNamaLengkap());
-                        profileNameText.setText(" " + (userProfile.getNamaLengkap() != null && !userProfile.getNamaLengkap().isEmpty() ? userProfile.getNamaLengkap() : (currentUser.getDisplayName() != null ? currentUser.getDisplayName() : "Belum diatur")));
-                        tvName.setText("Nama Lengkap: " + (userProfile.getNamaLengkap() != null && !userProfile.getNamaLengkap().isEmpty() ? userProfile.getNamaLengkap() : "Belum diatur"));
-                        tvUsername.setText("Username: " + (userProfile.getUsername() != null && !userProfile.getUsername().isEmpty() ? userProfile.getUsername() : "Belum diatur"));
-                        tvBirth.setText("Tanggal Lahir: " + (userProfile.getTanggalLahir() != null && !userProfile.getTanggalLahir().isEmpty() ? userProfile.getTanggalLahir() : "Belum diatur"));
-                        tvInstansi.setText("Instansi: " + (userProfile.getInstansi() != null && !userProfile.getInstansi().isEmpty() ? userProfile.getInstansi() : "Belum diatur"));
-                        tvQuotes.setText("Quotes: " + (userProfile.getQuotes() != null && !userProfile.getQuotes().isEmpty() ? userProfile.getQuotes() : "Belum diatur"));
+                        profileNameText.setText(" " + ((userProfile.getNamaLengkap() != null && !userProfile.getNamaLengkap().isEmpty()) ? userProfile.getNamaLengkap() : (currentUser.getDisplayName() != null ? currentUser.getDisplayName() : "Belum diatur")));
+                        tvName.setText("Nama Lengkap: " + ((userProfile.getNamaLengkap() != null && !userProfile.getNamaLengkap().isEmpty()) ? userProfile.getNamaLengkap() : "Belum diatur"));
+                        tvUsername.setText("Username: " + ((userProfile.getUsername() != null && !userProfile.getUsername().isEmpty()) ? userProfile.getUsername() : "Belum diatur"));
+                        tvBirth.setText("Tanggal Lahir: " + ((userProfile.getTanggalLahir() != null && !userProfile.getTanggalLahir().isEmpty()) ? userProfile.getTanggalLahir() : "Belum diatur"));
+                        tvInstansi.setText("Instansi: " + ((userProfile.getInstansi() != null && !userProfile.getInstansi().isEmpty()) ? userProfile.getInstansi() : "Belum diatur"));
+                        tvQuotes.setText("Quotes: " + ((userProfile.getQuotes() != null && !userProfile.getQuotes().isEmpty()) ? userProfile.getQuotes() : "Belum diatur"));
 
                         tvUsername.setVisibility(View.VISIBLE);
                         tvBirth.setVisibility(View.VISIBLE);
@@ -307,6 +409,8 @@ public class ProfileFragment extends Fragment {
                 }
             }
         } else {
+            textFavCount.setText("0");
+
             profileStatusText.setText("Status Akun Anda:");
             tvAccountType.setText("Tipe Akun: Guest (Anonim)");
             tvAccountType.setTextColor(getResources().getColor(android.R.color.holo_orange_dark));
@@ -330,6 +434,32 @@ public class ProfileFragment extends Fragment {
             tvUsername.setVisibility(View.GONE);
         }
     }
+
+    private void updateFavoriteCount(String userEmail) {
+        if (favoriteManager == null || !isAdded()) {
+            Log.w(TAG, "FavoriteManager is null or fragment not added, cannot update favorite count.");
+            return;
+        }
+
+        if (executorService != null) {
+            executorService.execute(() -> {
+                favoriteManager.open();
+                int count = favoriteManager.getFavoriteCountByUser(userEmail);
+                favoriteManager.close();
+
+                if (isAdded()) {
+                    requireActivity().runOnUiThread(() -> {
+                        if (textFavCount != null) {
+                            textFavCount.setText(String.valueOf(count));
+                        }
+                    });
+                }
+            });
+        } else {
+            Log.e(TAG, "ExecutorService is null, cannot update favorite count in background.");
+        }
+    }
+
 
     private void showLogoutConfirmationPopup() {
         Dialog dialog = new Dialog(requireContext());
@@ -424,19 +554,16 @@ public class ProfileFragment extends Fragment {
                                     String username = newPermanentUser.getDisplayName() != null ? newPermanentUser.getDisplayName() : (email.split("@")[0]);
                                     String namaLengkap = newPermanentUser.getDisplayName();
 
-                                    // --- PERUBAHAN UTAMA DI SINI ---
-                                    User existingUser = userManager.getUser(email); // Coba ambil data yang sudah ada
+                                    User existingUser = userManager.getUser(email);
 
                                     String tanggalLahirToSave = (existingUser != null && existingUser.getTanggalLahir() != null && !existingUser.getTanggalLahir().isEmpty()) ? existingUser.getTanggalLahir() : "";
                                     String instansiToSave = (existingUser != null && existingUser.getInstansi() != null && !existingUser.getInstansi().isEmpty()) ? existingUser.getInstansi() : "";
                                     String quotesToSave = (existingUser != null && existingUser.getQuotes() != null && !existingUser.getQuotes().isEmpty()) ? existingUser.getQuotes() : "";
-                                    // --- AKHIR PERUBAHAN UTAMA ---
 
                                     if (!userManager.isUserExists(email)) {
                                         userManager.insertUser(email, username, namaLengkap, tanggalLahirToSave, instansiToSave, quotesToSave);
                                         Log.d(TAG, "Inserted new user into local DB: " + email);
                                     } else {
-                                        // Saat update, juga pertahankan data yang sudah ada jika tidak ada perubahan dari Firebase
                                         userManager.updateUser(email, username, namaLengkap, tanggalLahirToSave, instansiToSave, quotesToSave);
                                         Log.d(TAG, "Updated existing user in local DB: " + email);
                                     }
@@ -489,7 +616,13 @@ public class ProfileFragment extends Fragment {
             return;
         }
 
-        User localUser = userManager.getUser(userEmail);
+        User localUser = null;
+        if (userManager != null && userManager.isDbOpen()) {
+            localUser = userManager.getUser(userEmail);
+        } else {
+            Log.w(TAG, "UserManager or database not ready, cannot fetch local user data for Firestore update.");
+        }
+
         Map<String, Object> userData = new HashMap<>();
 
         if (localUser != null) {
@@ -500,8 +633,6 @@ public class ProfileFragment extends Fragment {
             userData.put("instansi", localUser.getInstansi());
             userData.put("quotes", localUser.getQuotes());
         } else {
-            // Ini akan dipicu jika tidak ada data lokal untuk email ini sama sekali
-            // Maka kita inisialisasi dengan data dari Firebase Auth dan string kosong untuk detail lainnya
             userData.put("email", user.getEmail() != null ? user.getEmail() : "N/A");
             userData.put("username", user.getDisplayName() != null ? user.getDisplayName() : (user.getEmail() != null ? user.getEmail().split("@")[0] : ""));
             userData.put("namaLengkap", user.getDisplayName() != null ? user.getDisplayName() : "");
@@ -566,13 +697,11 @@ public class ProfileFragment extends Fragment {
                                 String username = newPermanentUser.getDisplayName() != null ? newPermanentUser.getDisplayName() : (email.split("@")[0]);
                                 String namaLengkap = newPermanentUser.getDisplayName();
 
-                                // --- PERUBAHAN UTAMA DI SINI JUGA ---
-                                User existingUser = userManager.getUser(email); // Coba ambil data yang sudah ada
+                                User existingUser = userManager.getUser(email);
 
                                 String tanggalLahirToSave = (existingUser != null && existingUser.getTanggalLahir() != null && !existingUser.getTanggalLahir().isEmpty()) ? existingUser.getTanggalLahir() : "";
                                 String instansiToSave = (existingUser != null && existingUser.getInstansi() != null && !existingUser.getInstansi().isEmpty()) ? existingUser.getInstansi() : "";
                                 String quotesToSave = (existingUser != null && existingUser.getQuotes() != null && !existingUser.getQuotes().isEmpty()) ? existingUser.getQuotes() : "";
-                                // --- AKHIR PERUBAHAN UTAMA ---
 
                                 if (!userManager.isUserExists(email)) {
                                     userManager.insertUser(email, username, namaLengkap, tanggalLahirToSave, instansiToSave, quotesToSave);

@@ -4,13 +4,17 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable; // Import ini
-import android.text.TextWatcher; // Import ini
+import android.os.Handler;
+import android.os.Looper;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,17 +25,20 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.apodicty.MainActivity;
 import com.example.apodicty.R;
 import com.example.apodicty.data.sqlitedatabase.database.favorite.Favorite;
 import com.example.apodicty.data.sqlitedatabase.database.favorite.FavoriteManager;
-import com.example.apodicty.data.sqlitedatabase.database.DatabaseHelper; // Import ini
+import com.example.apodicty.data.sqlitedatabase.database.DatabaseHelper;
 import com.example.apodicty.adapter.FavoriteDrugAdapter;
+import com.example.apodicty.utils.ProgressBarListener;
 import com.example.apodicty.page.activity.DetailDrugActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 public class FavoriteFragment extends Fragment {
 
@@ -43,38 +50,59 @@ public class FavoriteFragment extends Fragment {
     private FavoriteDrugAdapter adapter;
     private String currentUserEmail;
 
-    // Elemen UI
     private EditText etSearchQuery;
-    private ImageButton btnSearch; // Tombol ini bisa dihilangkan jika pencarian sepenuhnya real-time
-    private ImageButton btnSort;
+    private ImageButton btnSort; // btnSearch sudah dihapus, jadi ini tinggal btnSort
 
-    // Variabel untuk pencarian dan pengurutan
     private String currentSearchQuery = null;
-    private String currentSortBy = DatabaseHelper.COL_CREATED_AT; // Default sort by creation time
-    private String currentSortOrder = "DESC"; // Default descending (terbaru ke terlama)
+    // Mengubah default sort menjadi Nama Generic (A-Z) atau sesuai preferensi baru Anda
+    private String currentSortBy = DatabaseHelper.COL_GENERICNAME;
+    private String currentSortOrder = "ASC"; // Default ascending
 
-    // Opsi pengurutan untuk AlertDialog
+    // --- PERUBAHAN DI SINI: Hapus opsi "Tanggal Ditambahkan" ---
     private final String[] sortOptions = {
-            "Tanggal Ditambahkan (Terbaru)",
-            "Tanggal Ditambahkan (Terlama)",
+            // "Tanggal Ditambahkan (Terbaru)", // <<< HAPUS BARIS INI
+            // "Tanggal Ditambahkan (Terlama)", // <<< HAPUS BARIS INI
             "Nama Generic (A-Z)",
             "Nama Generic (Z-A)",
-            "Nama Brand (A-Z)", // Tambahkan ini jika ingin sort by brand
-            "Nama Brand (Z-A)" // Tambahkan ini jika ingin sort by brand
+            "Nama Brand (A-Z)",
+            "Nama Brand (Z-A)"
     };
-    // Mapping opsi ke kolom DB dan urutan
     private final String[][] sortMapping = {
-            {DatabaseHelper.COL_CREATED_AT, "DESC"},
-            {DatabaseHelper.COL_CREATED_AT, "ASC"},
+            // {DatabaseHelper.COL_CREATED_AT, "DESC"}, // <<< HAPUS BARIS INI
+            // {DatabaseHelper.COL_CREATED_AT, "ASC"},  // <<< HAPUS BARIS INI
             {DatabaseHelper.COL_GENERICNAME, "ASC"},
             {DatabaseHelper.COL_GENERICNAME, "DESC"},
-            {DatabaseHelper.COL_BRANDNAME, "ASC"}, // Mapping untuk brand A-Z
-            {DatabaseHelper.COL_BRANDNAME, "DESC"} // Mapping untuk brand Z-A
+            {DatabaseHelper.COL_BRANDNAME, "ASC"},
+            {DatabaseHelper.COL_BRANDNAME, "DESC"}
     };
+    // --- AKHIR PERUBAHAN ---
 
+    private ProgressBarListener progressBarListener;
+    private ExecutorService executorService;
+
+    private ProgressBar progressBarSearch;
+
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private Runnable searchRunnable;
+    private final long DEBOUNCE_DELAY = 300;
 
     public FavoriteFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof ProgressBarListener) {
+            progressBarListener = (ProgressBarListener) context;
+        } else {
+            throw new RuntimeException(context.toString() + " must implement ProgressBarListener");
+        }
+        if (context instanceof MainActivity) {
+            executorService = ((MainActivity) context).getExecutorService();
+        } else {
+            throw new RuntimeException(context.toString() + " must be MainActivity to provide ExecutorService");
+        }
     }
 
     @Override
@@ -84,8 +112,8 @@ public class FavoriteFragment extends Fragment {
         rvFavorites = view.findViewById(R.id.rv_favorites);
         tvNoFavorites = view.findViewById(R.id.tv_no_favorites);
         etSearchQuery = view.findViewById(R.id.et_search_query);
-        btnSearch = view.findViewById(R.id.btn_search);
-        btnSort = view.findViewById(R.id.btn_sort);
+        btnSort = view.findViewById(R.id.btn_sort); // Inisialisasi btnSort
+        progressBarSearch = view.findViewById(R.id.progress_bar_search);
 
         rvFavorites.setLayoutManager(new LinearLayoutManager(getContext()));
         favoriteManager = new FavoriteManager(requireContext());
@@ -100,47 +128,26 @@ public class FavoriteFragment extends Fragment {
         });
         rvFavorites.setAdapter(adapter);
 
-        // --- Perubahan untuk Real-time Search ---
         etSearchQuery.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // Tidak perlu implementasi di sini
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // Pemicu pencarian setiap kali teks berubah
-                currentSearchQuery = s.toString();
-                loadFavorites(); // Muat ulang dengan query baru
+                handler.removeCallbacks(searchRunnable);
+                final String query = s.toString();
+                progressBarSearch.setVisibility(View.VISIBLE);
+
+                searchRunnable = () -> {
+                    currentSearchQuery = query;
+                    loadFavorites();
+                };
+                handler.postDelayed(searchRunnable, DEBOUNCE_DELAY);
             }
 
             @Override
-            public void afterTextChanged(Editable s) {
-                // Tidak perlu implementasi di sini
-            }
+            public void afterTextChanged(Editable s) { }
         });
-
-        // Jika pencarian real-time, tombol search mungkin tidak diperlukan, bisa dihilangkan dari XML dan kode.
-        // Jika tetap ingin tombol search untuk "submit" pencarian secara manual (bukan real-time),
-        // maka listener tombol search tetap diperlukan, dan onTextChanged hanya akan mengupdate currentSearchQuery.
-        // Untuk real-time, kita hapus onClickListener dari btnSearch:
-        // btnSearch.setOnClickListener(v -> {
-        //     currentSearchQuery = etSearchQuery.getText().toString();
-        //     loadFavorites();
-        // });
-        // Atau biarkan tombol search untuk "submit" jika user tidak mau real time update setiap ketikan.
-        // Untuk contoh ini, saya akan menyarankan menghapus onClicListener dari btnSearch jika real-time.
-        // Jika Anda ingin tombol search tetap berfungsi untuk pencarian MANUAL,
-        // maka jangan tambahkan TextWatcher dan pertahankan onClickListener.
-        // Jika ingin real-time, hapus onClickListener untuk btnSearch.
-        btnSearch.setOnClickListener(v -> {
-            // Ini akan memicu pencarian sekali lagi ketika tombol search diklik,
-            // yang mungkin berguna jika user mengetik dan tidak menunggu real-time.
-            // Atau Anda bisa menghilangkan tombol ini jika real-time sudah cukup.
-            currentSearchQuery = etSearchQuery.getText().toString();
-            loadFavorites();
-        });
-
 
         btnSort.setOnClickListener(v -> showSortOptionsDialog());
 
@@ -151,16 +158,21 @@ public class FavoriteFragment extends Fragment {
     public void onResume() {
         super.onResume();
         currentUserEmail = getCurrentUserEmail();
-        // Set teks pencarian saat ini ke EditText jika sudah ada (misal setelah kembali dari Detail)
         etSearchQuery.setText(currentSearchQuery);
-        // Panggil loadFavorites() setelah etSearchQuery di-set, agar memuat dengan query yang ada.
-        loadFavorites();
+
+        if (adapter.getItemCount() == 0 && (currentSearchQuery == null || currentSearchQuery.isEmpty())) {
+            loadFavorites();
+        }
+        // Pastikan loadFavorites juga dipanggil saat resume jika ada query yang sudah ada
+        // agar tampilan diperbarui setelah kembali dari DetailDrugActivity, dll.
+        // loadFavorites(); // Ini bisa memicu tampilan ProgressBar singkat, tapi mungkin diperlukan
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_DETAIL_DRUG) {
+            // Setelah kembali dari DetailDrugActivity, muat ulang favorit (karena mungkin ada perubahan)
             loadFavorites();
         }
     }
@@ -183,21 +195,48 @@ public class FavoriteFragment extends Fragment {
             tvNoFavorites.setVisibility(View.VISIBLE);
             rvFavorites.setVisibility(View.GONE);
             adapter.setFavoriteList(new ArrayList<>());
+            progressBarSearch.setVisibility(View.GONE);
             return;
         }
 
-        favoriteManager.open();
-        List<Favorite> favorites = favoriteManager.getFavoritesByUser(currentUserEmail, currentSearchQuery, currentSortBy, currentSortOrder);
-        favoriteManager.close();
+        if (executorService != null) {
+            executorService.execute(() -> {
+                favoriteManager.open();
+                List<Favorite> favorites = favoriteManager.getFavoritesByUser(currentUserEmail, currentSearchQuery, currentSortBy, currentSortOrder);
+                favoriteManager.close();
 
-        if (favorites.isEmpty()) {
-            tvNoFavorites.setText("Tidak ada obat favorit yang ditemukan dengan kriteria ini.");
-            tvNoFavorites.setVisibility(View.VISIBLE);
-            rvFavorites.setVisibility(View.GONE);
+                if (isAdded()) {
+                    requireActivity().runOnUiThread(() -> {
+                        if (favorites.isEmpty()) {
+                            tvNoFavorites.setText("Tidak ada obat favorit yang ditemukan dengan kriteria ini.");
+                            tvNoFavorites.setVisibility(View.VISIBLE);
+                            rvFavorites.setVisibility(View.GONE);
+                        } else {
+                            tvNoFavorites.setVisibility(View.GONE);
+                            rvFavorites.setVisibility(View.VISIBLE);
+                            adapter.setFavoriteList(favorites);
+                        }
+                        progressBarSearch.setVisibility(View.GONE);
+                    });
+                } else {
+                    progressBarSearch.setVisibility(View.GONE);
+                }
+            });
         } else {
-            tvNoFavorites.setVisibility(View.GONE);
-            rvFavorites.setVisibility(View.VISIBLE);
-            adapter.setFavoriteList(favorites);
+            favoriteManager.open();
+            List<Favorite> favorites = favoriteManager.getFavoritesByUser(currentUserEmail, currentSearchQuery, currentSortBy, currentSortOrder);
+            favoriteManager.close();
+
+            if (favorites.isEmpty()) {
+                tvNoFavorites.setText("Tidak ada obat favorit yang ditemukan dengan kriteria ini.");
+                tvNoFavorites.setVisibility(View.VISIBLE);
+                rvFavorites.setVisibility(View.GONE);
+            } else {
+                tvNoFavorites.setVisibility(View.GONE);
+                rvFavorites.setVisibility(View.VISIBLE);
+                adapter.setFavoriteList(favorites);
+            }
+            progressBarSearch.setVisibility(View.GONE);
         }
     }
 
@@ -222,5 +261,13 @@ public class FavoriteFragment extends Fragment {
             }
         });
         builder.show();
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        progressBarListener = null;
+        executorService = null;
+        handler.removeCallbacksAndMessages(null);
     }
 }
